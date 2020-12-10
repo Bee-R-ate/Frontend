@@ -4,6 +4,7 @@ import router from './routes'
 import store from './store'
 import { firestorePlugin } from 'vuefire'
 import vuetify from './plugins/vuetify';
+// import './styles/my-styles.scss'
 
 Vue.use(firestorePlugin)
 
