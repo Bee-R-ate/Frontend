@@ -1,10 +1,10 @@
 <template>
 	<v-form ref="form" >
 		<h2>Rejestracja</h2>
-		<v-text-field :rules="[rules.required]" v-model="userData.name" label="Imię i nazwisko *"></v-text-field>
-		<v-text-field :rules="[rules.required, rules.email]" type="email" v-model="userData.email" label="Adres E-mail *"></v-text-field>
-		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="userData.password" label="Hasło *"></v-text-field>
-		<v-text-field :rules="[rules.required, confirmPassword]" type="password" v-model="userData.confirmPassword" label="Potwierdź Hasło *"></v-text-field>
+		<v-text-field :rules="[rules.required]" v-model="name" label="Imię i nazwisko *"></v-text-field>
+		<v-text-field :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
+		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
+		<v-text-field :rules="[rules.required, confirmPasswordRule]" type="password" v-model="confirmPassword" label="Potwierdź Hasło *"></v-text-field>
 
 		<v-checkbox label="Zapamiętaj mnie"></v-checkbox>
 		<v-checkbox :rules="[rules.required]" v-model="rodo1" label="Rodo1"></v-checkbox>
@@ -14,30 +14,37 @@
 </template>
 <script>
 	import rules from '@/helpers/validation/rules'
+	import {fb} from '@/firebase/firebase'
 
 	export default {
 		data() {
 			return {
-				userData: {
-					name: '',
-					email: '',
-					password: '',
-					confirmPassword: ''
-				},
+				name: '',
+				email: '',
+				password: '',
+				confirmPassword: '',
 				rodo1: false,
 				rodo2: false,
 				rules
 			}
 		},
-		firestore: {
-
-		},
 		methods: {
-			confirmPassword(v) {
-				return v == this.userData.password || 'Hasła muszą być identyczne!';
+			confirmPasswordRule(v) {
+				return v == this.password || 'Hasła muszą być identyczne!';
 			},
 			register() {
 				if(!this.$refs.form.validate()) return;
+
+				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
+				.then((result) => {
+					console.log(result);
+					return result.user.updateProfile({
+						displayName: this.name
+					})
+				})
+				.catch((error) => {
+					console.log(error)
+				});
 			},
 		}
 	}

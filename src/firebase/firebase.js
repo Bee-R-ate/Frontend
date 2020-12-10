@@ -3,14 +3,13 @@ import 'firebase/app'
 import 'firebase/firestore'
 
 var firebaseConfig = {
-	apiKey: "AIzaSyCEiUV7KuhGb6ux9RdjUUF2u5CRtUeC3YQ",
-	authDomain: "bilard-centrum-lubin.firebaseapp.com",
-	databaseURL: "https://bilard-centrum-lubin.firebaseio.com",
-	projectId: "bilard-centrum-lubin",
-	storageBucket: "bilard-centrum-lubin.appspot.com",
-	messagingSenderId: "537689316828",
-	appId: "1:537689316828:web:960af9211d597202024319"
-};
+	apiKey: "AIzaSyCjhZDO-iotzY23fZGSYYcIla3FCWOO0gs",
+	authDomain: "bee-r-ate.firebaseapp.com",
+	projectId: "bee-r-ate",
+	storageBucket: "bee-r-ate.appspot.com",
+	messagingSenderId: "171707147979",
+	appId: "1:171707147979:web:aee7ba0355e16c1c12dd4e"
+}
 
 export const fb = firebase.initializeApp(firebaseConfig);
 export const db = firebase.firestore();
