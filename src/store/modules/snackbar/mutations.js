@@ -1,5 +1,5 @@
 export default {
-	setSnackbar: (state, snackbarText) =>{
+	snackbar: (state, snackbarText) =>{
 		state.snackbarText = snackbarText;
 		state.snackbar = true;
 	},

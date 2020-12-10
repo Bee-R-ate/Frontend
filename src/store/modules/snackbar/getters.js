@@ -1,3 +1,4 @@
 export default {
-	snackbar: state => state.snackbar
+	getSnackbar: state => state.snackbar,
+	getSnackbarText: state => state.snackbarText,
 }
