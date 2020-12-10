@@ -38,12 +38,16 @@
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
 					console.log(result);
+					this.$store.commit('user', result.user);
+					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					return result.user.updateProfile({
 						displayName: this.name
 					})
 				})
 				.catch((error) => {
 					console.log(error)
+					if(error.code == "auth/email-already-in-use") this.$store.commit('snackbar', 'Taki email już istnieje!');
+					if(error.code == 'auth/internal-error') this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
 				});
 			},
 		}
