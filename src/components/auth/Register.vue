@@ -23,7 +23,7 @@
 </template>
 <script>
 	import rules from '@/helpers/validation/rules'
-	import {fb} from '@/firebase/firebase'
+	import {fb, db} from '@/firebase/firebase'
 
 	export default {
 		data() {
@@ -47,9 +47,17 @@
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
 					this.$store.commit('user', result.user);
-					localStorage.setItem('user', JSON.stringify(result.user));
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					this.$router.push('/');
+					db.collection('users').add({
+						Email: this.email,
+						Name: this.name,
+						ImageURL: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
+						ID: result.user.uid,
+						Friends: []
+					}).then(doc => {
+						this.$store.commit('user', {...this.$store.getters.user, docID: doc.id, ...doc.data()})
+					})
 					return result.user.updateProfile({
 						displayName: this.name
 					})

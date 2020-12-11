@@ -19,7 +19,7 @@
 </template>
 <script>
 	import rules from '@/helpers/validation/rules'
-	import {fb} from '@/firebase/firebase'
+	import {fb, db} from '@/firebase/firebase'
 
 	export default {
 		data() {
@@ -35,10 +35,14 @@
 
 				fb.auth().signInWithEmailAndPassword(this.email, this.password)
 				.then(user => {
-					this.$store.commit('user', user.user);
-					localStorage.setItem('user', JSON.stringify(user.user));
 					this.$store.commit('snackbar', 'Pomyślnie zalogowano!');
 					this.$router.push('/');
+					db.collection('users').where('Email', '==', user.user.email).limit(1).get().then(querySnapshot => {
+						querySnapshot.forEach(doc => {
+							this.$store.commit('user', {...user.user, docID: doc.id, ...doc.data()})
+							console.log(doc.id)
+						})
+					})
 				})
 				.catch(error => {
 					console.log(error)

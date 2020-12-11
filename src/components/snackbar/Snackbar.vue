@@ -16,7 +16,7 @@
 	export default{
 		watch:{
 			snackbar(){
-				setTimeout(()=>{this.$store.commit('unsetSnackbar'); }, 3000);
+				if(this.snackbar) setTimeout(()=>{this.$store.commit('unsetSnackbar'); }, 3000);
 			}
 		},
 		computed:{

@@ -11,7 +11,9 @@
 				<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>
 			</div>
 			<div class="d-flex flex-column" v-else>
-				<v-btn link to="/pokoj" class="mb-3" color="secondary">Stwórz pokój!</v-btn>
+				<v-btn link to="/tworzenie-pokoju" class="mb-3" color="secondary">Stwórz pokój!</v-btn>
+				<v-btn link to ="/znajomi" class="mb-3" color="secondary">Moi Znajomi</v-btn>
+				<v-btn link to ="/piwa" class="mb-3" color="secondary">Moje piwa</v-btn>
 				<v-btn @click="signOut" color="#E53935">Wyloguj się</v-btn>
 			</div>
 			
