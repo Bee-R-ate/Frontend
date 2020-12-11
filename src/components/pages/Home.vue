@@ -5,17 +5,35 @@
 			<img width="auto" height="220px" src="@/assets/logo.png" alt="logo bee-r-ate">
 			<h2 class="home-title">Bee-R-ate</h2>
 			<p class="home-subtitle">Rozpocznij swoją piwną debatę!</p>
-			<v-btn class="mb-5" link to="/logowanie" color="secondary">Zaloguj się!</v-btn>
-			<p class="mb-1" style="font-size: .9rem">Nie masz konta?</p>
-			<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>
+			<div v-if="!$store.getters.user.uid">
+				<v-btn class="mb-5" link to="/logowanie" color="secondary">Zaloguj się!</v-btn>
+				<p class="mb-1" style="font-size: .9rem">Nie masz konta?</p>
+				<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>
+			</div>
+			<div class="d-flex flex-column" v-else>
+				<v-btn link to="/pokoj" class="mb-3" color="secondary">Stwórz pokój!</v-btn>
+				<v-btn @click="signOut" color="#E53935">Wyloguj się</v-btn>
+			</div>
 			
 		</div>
 	</div>
 </template>
 
 <script>
+	import {fb} from '@/firebase/firebase'
+
 	export default {
-		
+		methods: {
+			signOut() {
+				fb.auth().signOut().then(() => {
+					localStorage.removeItem('user');
+					this.$store.commit('signOut');
+					this.$store.commit('snackbar', 'Wróć do nas jeszcze! Chlip chlip :c');
+				}).catch(() => {
+					this.$store.commit('snackbar', 'Coś poszło nie tak... Wygląda że zostajesz tu na wieczność :)')
+				});
+			}
+		}
 	}
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <v-app >
-    <router-view class="pa-10 second-bg"></router-view>
+    <router-view class="pa-10 second-bg router-view"></router-view>
     <Snackbar />
   </v-app>
 </template>
@@ -15,6 +15,7 @@
     },
     created() {
       fb.auth().onAuthStateChanged(user => user ? this.$store.commit("user", user) : this.$store.commit("signOut"));
+      if(localStorage.getItem('user')) this.$store.commit("user", JSON.parse(localStorage.getItem('user')))
     }
   };
 </script>
@@ -29,5 +30,9 @@
   }
   .second-bg {
     background-color: var(--second-color);
+  }
+  .router-view {
+    height: 100vh;
+
   }
 </style>

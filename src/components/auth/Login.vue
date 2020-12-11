@@ -1,11 +1,21 @@
 <template>
-	<v-form ref="form" >
-		<h2>Logowanie</h2>
-		<v-text-field :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
-		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
+	<div class="d-flex align-center justify-center text-center ">
+		<v-form ref="form" class="login-form">
+			<div class="back-container">
+				<v-btn link to="/" icon>
+					<v-icon>mdi-arrow-left-circle</v-icon>
+				</v-btn>
+			</div>
+			<h2 class="login-title">Logowanie</h2>
+			<v-text-field color="black" :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
+			<v-text-field color="black" :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
 
-		<v-btn class="btn--black" @click="login">Wyślij</v-btn>
-	</v-form>
+			<v-btn class="btn--black mt-5" @click="login">Zaloguj się</v-btn>
+
+			<p class="mb-1 mt-5" style="font-size: .9rem">Nie masz konta?</p>
+			<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>
+		</v-form>
+	</div>
 </template>
 <script>
 	import rules from '@/helpers/validation/rules'
@@ -26,7 +36,9 @@
 				fb.auth().signInWithEmailAndPassword(this.email, this.password)
 				.then(user => {
 					this.$store.commit('user', user.user);
+					localStorage.setItem('user', JSON.stringify(user.user));
 					this.$store.commit('snackbar', 'Pomyślnie zalogowano!');
+					this.$router.push('/');
 				})
 				.catch(error => {
 					console.log(error)
@@ -37,11 +49,20 @@
 		}
 	}
 </script>
-<style scoped lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss">
 	btn {
 		color: red;
 		&--black {
 			color: green !important;
 		}
 	}
+	.login-form {
+		min-width: 75%;
+		position: relative;
+	}
+	.login-title {
+		font-size: 2.5rem;
+
+	}
+	
 </style>

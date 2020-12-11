@@ -1,15 +1,25 @@
 <template>
-	<v-form ref="form" >
-		<h2>Rejestracja</h2>
-		<v-text-field :rules="[rules.required]" v-model="name" label="Imię i nazwisko *"></v-text-field>
-		<v-text-field :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
-		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
-		<v-text-field :rules="[rules.required, confirmPasswordRule]" type="password" v-model="confirmPassword" label="Potwierdź Hasło *"></v-text-field>
+	<div class="d-flex align-center justify-center text-center ">
+		<v-form ref="form" class="login-form">
+			<div class="back-container">
+				<v-btn link to="/" icon>
+					<v-icon>mdi-arrow-left-circle</v-icon>
+				</v-btn>
+			</div>
+			<h2 class="login-title">Rejestracja</h2>
+			<v-text-field color="black" :rules="[rules.required]" v-model="name" label="Imię i nazwisko *"></v-text-field>
+			<v-text-field color="black" :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
+			<v-text-field color="black" :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
+			<v-text-field color="black" :rules="[rules.required, confirmPasswordRule]" type="password" v-model="confirmPassword" label="Potwierdź Hasło *"></v-text-field>
 
-		<v-checkbox :rules="[rules.required]" v-model="rodo1" label="Rodo1"></v-checkbox>
-		<v-checkbox :rules="[rules.required]" v-model="rodo2" label="Rodo2"></v-checkbox>
-		<v-btn class="btn--black" @click="register">Wyślij</v-btn>
-	</v-form>
+			<v-checkbox color="black" :rules="[rules.required]" v-model="rodo1" label="Rodo1"></v-checkbox>
+			<v-checkbox color="black" :rules="[rules.required]" v-model="rodo2" label="Rodo2"></v-checkbox>
+			<v-btn class="btn--black" @click="register">Wyślij</v-btn>
+
+			<p class="mb-1 mt-5" style="font-size: .9rem">Masz już konto?</p>
+			<v-btn link to="/logowanie" color="secondary">Zaloguj się!</v-btn>
+		</v-form>
+	</div>
 </template>
 <script>
 	import rules from '@/helpers/validation/rules'
@@ -37,7 +47,9 @@
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
 					this.$store.commit('user', result.user);
+					localStorage.setItem('user', JSON.stringify(result.user));
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
+					this.$router.push('/');
 					return result.user.updateProfile({
 						displayName: this.name
 					})
@@ -51,11 +63,18 @@
 		}
 	}
 </script>
-<style scoped lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss">
 	btn {
 		color: red;
 		&--black {
 			color: green !important;
 		}
+	}
+
+	.back-container {
+		position: absolute;
+		top: -6%;
+		left: 0;
+
 	}
 </style>
