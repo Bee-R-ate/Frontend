@@ -21,14 +21,7 @@
     },
 
     created() {
-      fb.auth().onAuthStateChanged(user => {
-        if (user) {
-          this.$store.commit("user", user);
-        } else {
-          this.$store.commit("signOut");
-        }
-
-      });
+      fb.auth().onAuthStateChanged(user => user ? this.$store.commit("user", user) : this.$store.commit("signOut"));
     }
   };
 </script>
