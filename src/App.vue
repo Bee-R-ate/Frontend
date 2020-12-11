@@ -8,9 +8,10 @@
 </template>
 
 <script>
-  import Header from './components/layout/Header';
-  import Footer from './components/layout/Footer';
-  import Snackbar from './components/snackbar/Snackbar';
+  import Header from './components/layout/Header'
+  import Footer from './components/layout/Footer'
+  import Snackbar from './components/snackbar/Snackbar'
+  import {fb} from '@/firebase/firebase'
 
   export default {
     name: 'App',
@@ -19,19 +20,15 @@
       Header, Footer, Snackbar
     },
 
-    methods: {
-      autoLogin() {
-        if(localStorage.getItem('user')) {
-          this.$store.commit('user', JSON.parse(localStorage.getItem('user')))
+    created() {
+      fb.auth().onAuthStateChanged(user => {
+        if (user) {
+          this.$store.commit("user", user);
+        } else {
+          this.$store.commit("signOut");
         }
 
-        if(sessionStorage.getItem('user')) {
-          this.$store.commit('user', JSON.parse(sessionStorage.getItem('user')))
-        }
-      }
-    },
-    created() {
-      this.autoLogin();
+      });
     }
   };
 </script>

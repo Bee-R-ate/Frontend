@@ -21,10 +21,10 @@
 		},
 		computed:{
 			snackbar(){
-				return this.$store.getters.getSnackbar;
+				return this.$store.getters.snackbar;
 			},
 			text(){
-				return this.$store.getters.getSnackbarText;
+				return this.$store.getters.snackbarText;
 			}
 		}
 	}
