@@ -11,7 +11,6 @@ const routes = [
 	{ path: '/', component: Home, name: 'Home' },
 	{ path: '/rejestracja', component: Register, name: 'Register' },
 	{ path: '/logowanie', component: Login, name: 'Login' },
-	{ path: '/logowanie', component: Login, name: 'Login' },
 ]
 
 export default new VueRouter({

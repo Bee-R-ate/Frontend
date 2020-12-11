@@ -4,7 +4,6 @@
 		<v-text-field :rules="[rules.required, rules.email]" type="email" v-model="email" label="Adres E-mail *"></v-text-field>
 		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
 
-		<v-checkbox v-model="remember" label="Zapamiętaj mnie"></v-checkbox>
 		<v-btn class="btn--black" @click="login">Wyślij</v-btn>
 	</v-form>
 </template>
@@ -18,7 +17,6 @@
 				email: '',
 				password: '',
 				rules,
-				remember: false
 			}
 		},
 		methods: {
@@ -28,8 +26,6 @@
 				fb.auth().signInWithEmailAndPassword(this.email, this.password)
 				.then(user => {
 					this.$store.commit('user', user.user);
-					sessionStorage.setItem('user', JSON.stringify(user.user))
-					if(this.remember) localStorage.setItem('user', JSON.stringify(user.user))
 					this.$store.commit('snackbar', 'Pomyślnie zalogowano!');
 				})
 				.catch(error => {

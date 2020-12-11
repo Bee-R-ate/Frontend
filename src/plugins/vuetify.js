@@ -4,6 +4,16 @@ import 'vuetify/dist/vuetify.min.css'
 
 Vue.use(Vuetify)
 
-const opts = {}
+const opts = {
+	theme: {
+		themes: {
+			light: {
+				primary: '#EA611A',
+				secondary: '#fff'
+			}
+		}
+	}
+	
+}
 
 export default new Vuetify(opts)

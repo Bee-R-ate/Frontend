@@ -6,7 +6,6 @@
 		<v-text-field :rules="[rules.required, rules.passwordLength]" type="password" v-model="password" label="Hasło *"></v-text-field>
 		<v-text-field :rules="[rules.required, confirmPasswordRule]" type="password" v-model="confirmPassword" label="Potwierdź Hasło *"></v-text-field>
 
-		<v-checkbox label="Zapamiętaj mnie"></v-checkbox>
 		<v-checkbox :rules="[rules.required]" v-model="rodo1" label="Rodo1"></v-checkbox>
 		<v-checkbox :rules="[rules.required]" v-model="rodo2" label="Rodo2"></v-checkbox>
 		<v-btn class="btn--black" @click="register">Wyślij</v-btn>
@@ -37,7 +36,6 @@
 
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
-					console.log(result);
 					this.$store.commit('user', result.user);
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					return result.user.updateProfile({

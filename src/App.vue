@@ -1,27 +1,33 @@
 <template>
   <v-app >
-    <Header />
-    <router-view class="pa-10"></router-view>
-    <Footer />
+    <router-view class="pa-10 second-bg"></router-view>
     <Snackbar />
   </v-app>
 </template>
-
 <script>
-  import Header from './components/layout/Header'
-  import Footer from './components/layout/Footer'
-  import Snackbar from './components/snackbar/Snackbar'
-  import {fb} from '@/firebase/firebase'
+  import Snackbar from './components/snackbar/Snackbar';
+  import {fb} from '@/firebase/firebase';
 
   export default {
     name: 'App',
-
     components: {
-      Header, Footer, Snackbar
+      Snackbar
     },
-
     created() {
       fb.auth().onAuthStateChanged(user => user ? this.$store.commit("user", user) : this.$store.commit("signOut"));
     }
   };
 </script>
+
+<style>
+  :root {
+    --first-color: #FFE046;
+    --second-color: #ca9b17;
+  }
+  .first-color {
+    color: var(--first-color);
+  }
+  .second-bg {
+    background-color: var(--second-color);
+  }
+</style>
