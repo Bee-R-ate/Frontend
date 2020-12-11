@@ -23,6 +23,7 @@
 	.home-container {
 		height: 100vh;	
 		position: relative;
+		overflow: hidden;
 	}
 	.home-content {
 		height: fit-content;
