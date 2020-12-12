@@ -7,6 +7,7 @@ import Login from '@/components/auth/Login'
 import CreateRoom from '@/components/room/CreateRoom'
 import Friends from '@/components/friends/Friends'
 import Profile from '@/components/profile/Profile.vue'
+import BeerList from '@/components/beerlist/BeerList.vue'
 
 Vue.use(VueRouter)
 
@@ -17,6 +18,7 @@ const routes = [
 	{ path: '/tworzenie-pokoju', component: CreateRoom, name: 'CreateRoom' },
 	{ path: '/znajomi', component: Friends, name: 'Friends' },
 	{ path: '/profil', component: Profile, name: 'Profile' },
+	{ path: '/piwa', component: BeerList, name: 'BeerList' },
 ]
 
 export default new VueRouter({

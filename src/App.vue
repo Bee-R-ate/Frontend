@@ -30,6 +30,7 @@
               this.$store.commit('user', {...user, docID: doc.id, ...doc.data()})
               this.$store.commit('loading', false);
               this.$store.dispatch('friends');
+              this.$store.dispatch('beers');
             })
           })
         } else {

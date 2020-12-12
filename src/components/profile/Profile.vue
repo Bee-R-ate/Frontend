@@ -12,7 +12,7 @@
 			<v-form ref="form">
 				<v-row>
 					<v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-						<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[fileRule]" color="black" class="mt-0" v-model="file" label="Zdjęcie"></v-file-input>
+						<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[rules.fileSize]" color="black" class="mt-0" v-model="file" label="Zdjęcie"></v-file-input>
 					</v-col>
 					<v-col sm="6" cols="12" class="pa-0 pa-sm-1">
 						<v-text-field color="black" class="mt-0" v-model="user.Name" label="Imię i nazwisko"></v-text-field>
@@ -42,6 +42,7 @@
 </template>
 
 <script type="text/javascript">
+	import rules from '@/helpers/validation/rules'
 
 	export default {
 		data() {
@@ -49,7 +50,8 @@
 				oldPassword: '',
 				newPassword: '',
 				confirmPassword: '',
-				file: null
+				file: null,
+				rules
 			}
 		},
 		computed: {
@@ -81,9 +83,7 @@
 			newPasswordOperation(v) {
 				return this.oldPassword ? (!!v || 'Proszę podać nowe hasło!') : true;
 			},
-			fileRule(v) {
-				return v == null ? true : v.size < 5000000 || 'Zdjęcie powinno ważyć mniej niż 5 MB!';
-			}
+			
 		}
 	}
 </script>
@@ -101,5 +101,6 @@
 		height: 150px;
 		border-radius: 50%;
 		object-fit: cover;
+		margin: auto;
 	}
 </style>
