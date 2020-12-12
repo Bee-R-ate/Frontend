@@ -63,6 +63,14 @@
 		methods: {
 			editProfile() {
 				if(!this.$refs.form.validate()) return;
+
+				this.$store.dispatch('editUser', {
+					oldPassword: this.oldPassword,
+					newPassword: this.newPassword,
+					file: this.file,
+					email: this.user.Email,
+					name: this.user.Name
+				})
 			},
 			passwordOperation(v) {
 				return this.newPassword ? (!!v || 'Proszę podać stare hasło!') : true;
