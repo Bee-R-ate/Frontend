@@ -14,6 +14,7 @@
 				<v-btn link to="/tworzenie-pokoju" class="mb-3" color="secondary">Stwórz pokój!</v-btn>
 				<v-btn link to ="/znajomi" class="mb-3" color="secondary">Moi Znajomi</v-btn>
 				<v-btn link to ="/piwa" class="mb-3" color="secondary">Moje piwa</v-btn>
+				<v-btn link to ="/profil" class="mb-3" color="secondary">Mój profil</v-btn>
 				<v-btn @click="signOut" color="#E53935">Wyloguj się</v-btn>
 			</div>
 			
@@ -50,6 +51,7 @@
 		text-align: center;
 		display: flex;
 		flex-direction: column;
+
 	}
 	.home-title {
 		font-size: 3rem;

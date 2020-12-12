@@ -4,7 +4,7 @@ export default {
 	}, 
 	mutations: {
 		user: (state, user) => state.user = user,
-		signOut: state => state.user = {}
+		signOut: state => {state.user = {}; state.friends = []}
 	}, 
 	getters: {
 		user: state => state.user

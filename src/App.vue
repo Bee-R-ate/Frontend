@@ -29,6 +29,7 @@
             querySnapshot.forEach(doc => {
               this.$store.commit('user', {...user, docID: doc.id, ...doc.data()})
               this.$store.commit('loading', false);
+              this.$store.dispatch('friends');
             })
           })
         } else {
@@ -47,6 +48,9 @@
   }
   .first-color {
     color: var(--first-color);
+  }
+  .position-relative {
+    position: relative!important;
   }
 
   .second-bg {
