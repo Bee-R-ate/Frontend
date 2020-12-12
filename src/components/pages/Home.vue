@@ -51,7 +51,7 @@
 		text-align: center;
 		display: flex;
 		flex-direction: column;
-
+		
 	}
 	.home-title {
 		font-size: 3rem;

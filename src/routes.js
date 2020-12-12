@@ -6,6 +6,7 @@ import Register from '@/components/auth/Register'
 import Login from '@/components/auth/Login'
 import CreateRoom from '@/components/room/CreateRoom'
 import Friends from '@/components/friends/Friends'
+import Profile from '@/components/profile/Profile.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,7 @@ const routes = [
 	{ path: '/logowanie', component: Login, name: 'Login' },
 	{ path: '/tworzenie-pokoju', component: CreateRoom, name: 'CreateRoom' },
 	{ path: '/znajomi', component: Friends, name: 'Friends' },
+	{ path: '/profil', component: Profile, name: 'Profile' },
 ]
 
 export default new VueRouter({
