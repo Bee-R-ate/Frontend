@@ -22,7 +22,7 @@ export default {
 
 				uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 					uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-						db.collection('users').doc(state.user.docID).update({ImageURL: downloadURL}).then(() => {
+						db.collection('users').doc(state.user.docID).update({imageURL: downloadURL}).then(() => {
 							commit('snackbar', 'Pomyślnie dodano zdjęcie!');
 							commit('loading', false);
 							dispatch('autoLogin')
@@ -60,12 +60,13 @@ export default {
 			commit('loading', true);
 			fb.auth().onAuthStateChanged(user => {
 				if(user) {
-					db.collection('users').where('Email', '==', user.email).limit(1).get().then(querySnapshot => {
+					db.collection('users').where('email', '==', user.email).limit(1).get().then(querySnapshot => {
 						querySnapshot.forEach(doc => {
 							commit('user', {...user, docID: doc.id, ...doc.data()})
 							commit('loading', false);
 							dispatch('friends');
 							dispatch('beers');
+							dispatch('myRooms');
 						})
 					})
 				} else {

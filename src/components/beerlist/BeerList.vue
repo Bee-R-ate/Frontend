@@ -1,12 +1,12 @@
 <template>
-	<div class="d-flex align-center justify-center home-container beers">
+	<div class="d-flex justify-center home-container beers">
 		<div class="home-content position-relative text-center friends ">
 			<div class="back-container">
 				<v-btn link to="/" icon>
 					<v-icon>mdi-arrow-left-circle</v-icon>
 				</v-btn>
 			</div>
-			<h2 class="home-title mt-2">Moje piwa</h2>
+			<h2 class="home-title mt-2">Piwa</h2>
 			<img v-if="activePhoto && editFlag == undefined" class="profile-photo" :src="activePhoto" alt="piwo">
 			<v-form ref="form">
 				<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[rules.fileSize]" color="black" class="mt-0" v-model="file" label="Zdjęcie piwa"></v-file-input>
@@ -17,7 +17,7 @@
 			<v-text-field color="black" label="Znajdź piwo..." prepend-icon="mdi-magnify" v-model="search"></v-text-field>
 			<v-list v-if="beers.length > 0" class="py-0 friend-list">
 				<div v-for="(beer, i) in beers" :key="i">
-					<div v-if="beer.Name.toLowerCase().includes(search.toLowerCase())">
+					<div v-if="beer.name.toLowerCase().includes(search.toLowerCase())">
 						<v-list-item class="px-0">
 							<v-list-item-avatar :size="60" class="ml-3">
 								<v-img v-if="editFlag == undefined" :src="beer.photoUrl"></v-img>
@@ -27,11 +27,11 @@
 
 							<v-list-item-content class="position-relative ">
 								<div class="pr-3 py-3">
-									<v-list-item-title v-if="editFlag == undefined" v-html="beer.Name"></v-list-item-title>
+									<v-list-item-title v-if="editFlag == undefined" v-html="beer.name"></v-list-item-title>
 									<div v-if="editFlag == i">
-										<v-text-field label="Wpisz nazwę" :rules="[rules.required]" v-model="beer.Name"></v-text-field>
+										<v-text-field label="Wpisz nazwę" :rules="[rules.required]" v-model="beer.name"></v-text-field>
 										<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[rules.fileSize]" color="black" class="mt-0" v-model="editFile" label="Zdjęcie piwa"></v-file-input>
-										<v-btn color="secondary" v-if="editFlag == i" @click="editBeer(beer, i)">Zapisz</v-btn>
+										<v-btn color="secondary" v-if="editFlag == i" @click="editBeer(beer)">Zapisz</v-btn>
 										<v-btn color="#E53935" v-if="editFlag == i" @click="editFlag = undefined">Anuluj</v-btn>
 									</div>
 								</div>
@@ -93,8 +93,8 @@
 			addBeer() {
 				if(this.file == null || !this.$refs.form.validate()) return;
 
-				if(this.beers.find(beer => beer.Name == this.name)) {
-					this.$store.commit('snackbar', 'Wiem, że bardzo je lubisz, ale masz już takie piwo...');
+				if(this.beers.find(beer => beer.name == this.name)) {
+					this.$store.commit('snackbar', 'Wiem, że bardzo je lubisz, ale takie piwo jest już na liście...');
 					return;
 				}
 				this.$store.commit('loading', true);
@@ -104,8 +104,10 @@
 				uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 					uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
 						let beerList = this.user.BeerList;
-						beerList.push({Name: this.name, photoUrl: downloadURL, avgAppearanceScore: 0, avgSmellScore: 0, avgTasteScore: 0, avgSensationsScore: 0, avgSubjectiveScore: 0, avgScore: 0});
-						db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
+						beerList.push({});
+						db.collection('beers').add({
+							name: this.name, photoUrl: downloadURL, avgAppearanceScore: 0, avgSmellScore: 0, avgTasteScore: 0, avgSensationsScore: 0, avgSubjectiveScore: 0, avgScore: 0
+						}).then(() => {
 							this.$store.commit('snackbar', 'Na zdrówko!');
 							this.$store.commit('loading', false);
 							this.$store.dispatch('beers');
@@ -117,13 +119,11 @@
 					});
 				});
 			},
-			async deleteBeer(beer) {
-				if(!confirm(`Czy na pewno chcesz usunąć piwko ${beer.Name}?`)) return;
+			deleteBeer(beer) {
+				if(!confirm(`Czy na pewno chcesz usunąć piwko ${beer.name}?`)) return;
 
 				this.$store.commit('loading', true);
-				let beerList = this.user.BeerList;
-				beerList.splice(beerList.indexOf(beer), 1);
-				await db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
+				db.collection('beers').doc(beer.id).delete().then(() => {
 					this.$store.commit('snackbar', 'A mogło być dobre...');
 					this.$store.commit('loading', false);
 					this.$store.dispatch('beers');
@@ -135,7 +135,7 @@
 				
 			},
 
-			editBeer(beer, i) {
+			editBeer(beer) {
 				if(!this.$refs.form.validate()) return;
 				this.$store.commit('loading', true);
 				if(this.editFile != null) {
@@ -144,9 +144,7 @@
 
 					uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 						uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-							let beerList = this.user.BeerList;
-							beerList[i].photoUrl = downloadURL;
-							db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
+							db.collection('beers').doc(beer.id).update({photoUrl: downloadURL}).then(() => {
 								this.$store.commit('snackbar', 'Edytowano zdjęcię!');
 								this.$store.commit('loading', false);
 								this.$store.dispatch('beers');
@@ -159,9 +157,7 @@
 					});
 				} 
 
-				let beerList = this.user.BeerList;
-				beerList[i].Name = beer.Name;
-				db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
+				db.collection('beers').doc(beer.id).update({name: beer.name}).then(() => {
 					this.$store.commit('snackbar', 'Edytowano nazwę!');
 					this.$store.commit('loading', false);
 					this.$store.dispatch('beers');

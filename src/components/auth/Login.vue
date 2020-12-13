@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center text-center ">
+	<div class="d-flex justify-center text-center auth home-container">
 		<v-form ref="form" class="login-form">
 			<div class="back-container">
 				<v-btn link to="/" icon>
@@ -13,7 +13,7 @@
 			<v-btn class="btn--black mt-5" @click="login">Zaloguj się</v-btn>
 
 			<p class="mb-1 mt-5" style="font-size: .9rem">Nie masz konta?</p>
-			<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>
+			<v-btn link to="/rejestracja" class="mb-5" color="secondary">Zarejestruj się</v-btn>
 		</v-form>
 	</div>
 </template>

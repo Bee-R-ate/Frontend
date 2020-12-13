@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center home-container">
+	<div class="d-flex justify-center home-container">
 		<div class="home-content position-relative friends">
 			<div class="back-container">
 				<v-btn link to="/" icon>
@@ -14,13 +14,13 @@
 				<div v-for="(friend, i) in friends" :key="i">
 					<v-list-item class="px-0">
 						<v-list-item-avatar :size="60" class="ml-3">
-							<v-img :src="friend.ImageURL"></v-img>
+							<v-img :src="friend.imageURL"></v-img>
 						</v-list-item-avatar>
 
 						<v-list-item-content class="position-relative ">
 							<div class="pr-3 py-3">
-								<v-list-item-title v-html="friend.Name"></v-list-item-title>
-								<v-list-item-subtitle v-html="friend.Email"></v-list-item-subtitle>
+								<v-list-item-title v-html="friend.name"></v-list-item-title>
+								<v-list-item-subtitle v-html="friend.email"></v-list-item-subtitle>
 							</div>
 							<div class="delete-friend-container">
 								<v-btn class="" @click="deleteFriend(friend)" icon>
@@ -66,19 +66,19 @@
 					return;
 				}
 				this.$store.commit('loading', true);
-				db.collection("users").where('Email', '==', this.search.toLowerCase()).limit(1)
+				db.collection("users").where('email', '==', this.search.toLowerCase()).limit(1)
 				.get().then(querySnapshot  => {
 					querySnapshot.forEach(doc => {
-						if(!this.user.Friends.includes(doc.id)) {
-							this.user.Friends.push(doc.id);
-							db.collection('users').doc(this.user.docID).update({Friends: this.user.Friends}).then(() => {
+						if(!this.user.friends.includes(doc.id)) {
+							this.user.friends.push(doc.id);
+							db.collection('users').doc(this.user.docID).update({friends: this.user.friends}).then(() => {
 								this.$store.commit('snackbar', 'To teraz piwko!');
 								this.$store.commit('loading', false);
 								this.search = '';
 							});
-							let friends = doc.data().Friends;
+							let friends = doc.data().friends;
 							friends.push(this.user.docID);
-							db.collection('users').doc(doc.id).update({Friends: friends})
+							db.collection('users').doc(doc.id).update({friends: friends})
 							this.$store.dispatch('friends');
 						} else {
 							this.$store.commit('loading', false);
@@ -90,17 +90,17 @@
 				});
 			},
 			async deleteFriend(friend) {
-				if(!confirm(`Czy na pewno chcesz usunąć kolegę ${friend.Name}?`)) return;
+				if(!confirm(`Czy na pewno chcesz usunąć kolegę ${friend.name}?`)) return;
 				await db.collection('users').doc(friend.id).onSnapshot(doc => {
-					let friendFriends = doc.data().Friends;
+					let friendFriends = doc.data().friends;
 					friendFriends.splice(friendFriends.indexOf(this.user.docID), 1);
-					db.collection('users').doc(friend.id).update({Friends: friendFriends});
+					db.collection('users').doc(friend.id).update({friends: friendFriends});
 				})
 
-				let myFriends = this.user.Friends;
+				let myFriends = this.user.friends;
 				myFriends.splice(myFriends.indexOf(friend.id), 1);
 
-				await db.collection('users').doc(this.user.docID).update({Friends: myFriends})
+				await db.collection('users').doc(this.user.docID).update({friends: myFriends})
 				.then(() => {
 					this.$store.commit('snackbar', 'Przykro, że się nie dogadaliście...');
 					this.$store.dispatch('friends');

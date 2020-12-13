@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center home-container profile">
+	<div class="d-flex justify-center home-container profile">
 		<div class="home-content justify-center align-center text-center position-relative">
 			<div class="back-container">
 				<v-btn link to="/" icon>
@@ -15,10 +15,10 @@
 						<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[rules.fileSize]" color="black" class="mt-0" v-model="file" label="Zdjęcie"></v-file-input>
 					</v-col>
 					<v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-						<v-text-field color="black" class="mt-0" v-model="user.Name" label="Imię i nazwisko"></v-text-field>
+						<v-text-field color="black" class="mt-0" v-model="user.name" label="Imię i nazwisko"></v-text-field>
 					</v-col>
 					<v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-						<v-text-field color="black" class="mt-0" v-model="user.Email" disabled label="Adres E-mail"></v-text-field>
+						<v-text-field color="black" class="mt-0" v-model="user.email" disabled label="Adres E-mail"></v-text-field>
 					</v-col> 
 					<v-col sm="6" cols="12" class="pa-0 pa-sm-1">
 						<v-text-field color="black" type="password" :rules="[passwordOperation]" class="mt-0" v-model="oldPassword" label="Stare hasło"></v-text-field>
@@ -59,7 +59,7 @@
 				return this.$store.getters.user;
 			},
 			activePhoto() {
-				return this.file == null ? this.user.ImageURL : URL.createObjectURL(this.file);
+				return this.file == null ? this.user.imageURL : URL.createObjectURL(this.file);
 			}
 		},
 		methods: {
@@ -70,8 +70,8 @@
 					oldPassword: this.oldPassword,
 					newPassword: this.newPassword,
 					file: this.file,
-					email: this.user.Email,
-					name: this.user.Name
+					email: this.user.email,
+					name: this.user.name
 				})
 			},
 			passwordOperation(v) {

@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center text-center ">
+	<div class="d-flex justify-center text-center auth home-container ">
 		<v-form ref="form" class="login-form">
 			<div class="back-container">
 				<v-btn link to="/" icon>
@@ -17,7 +17,7 @@
 			<v-btn class="btn--black" @click="register">Wyślij</v-btn>
 
 			<p class="mb-1 mt-5" style="font-size: .9rem">Masz już konto?</p>
-			<v-btn link to="/logowanie" color="secondary">Zaloguj się!</v-btn>
+			<v-btn link to="/logowanie" class="mb-5" color="secondary">Zaloguj się!</v-btn>
 		</v-form>
 	</div>
 </template>
@@ -51,12 +51,11 @@
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					this.$router.push('/');
 					db.collection('users').add({
-						Email: this.email,
-						Name: this.name,
-						ImageURL: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
+						email: this.email,
+						name: this.name,
+						imageURL: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
 						ID: result.user.uid,
-						Friends: [],
-						BeerList: []
+						friends: [],
 					}).then(doc => {
 						this.$store.commit('user', {...this.$store.getters.user, docID: doc.id, ...doc.data()})
 					})

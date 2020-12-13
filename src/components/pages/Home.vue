@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center home-container">
+	<div class="d-flex justify-center home home-container">
 		<img class="beer-handy" src="@/assets/beer-handy.png" alt="">
 		<div class="home-content">
 			<img width="auto" height="220px" src="@/assets/logo.png" alt="logo bee-r-ate">
@@ -12,8 +12,9 @@
 			</div>
 			<div class="d-flex flex-column" v-else>
 				<v-btn link to="/tworzenie-pokoju" class="mb-3" color="secondary">Stwórz pokój!</v-btn>
+				<v-btn link to="/moje-pokoje" class="mb-3" color="secondary">Moje pokoje</v-btn>
 				<v-btn link to ="/znajomi" class="mb-3" color="secondary">Moi Znajomi</v-btn>
-				<v-btn link to ="/piwa" class="mb-3" color="secondary">Moje piwa</v-btn>
+				<v-btn link to ="/piwa" class="mb-3" color="secondary">Piwa</v-btn>
 				<v-btn link to ="/profil" class="mb-3" color="secondary">Mój profil</v-btn>
 				<v-btn @click="signOut" color="#E53935">Wyloguj się</v-btn>
 			</div>
@@ -41,10 +42,16 @@
 </script>
 
 <style>
+	@media(min-height: 670px) {
+		.home-container.home, .home-container.auth {
+			align-items: center!important;
+		}
+	}
 	.home-container {
-		height: 100vh;	
+		min-height: 100vh;	
 		position: relative;
 		overflow: hidden;
+		overflow-y: scroll;
 	}
 	.home-content {
 		height: fit-content;

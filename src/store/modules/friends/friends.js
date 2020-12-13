@@ -13,7 +13,7 @@ export default {
 	actions: {
 		async friends({commit, getters}) {
 			let friends = [];
-			for(let id of getters.user.Friends) {
+			for(let id of getters.user.friends) {
 				let promise = await db.collection('users').doc(id).get();
 				let friend = promise.data();
 				friend.id = promise.id;

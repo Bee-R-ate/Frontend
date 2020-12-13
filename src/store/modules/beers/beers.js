@@ -1,3 +1,5 @@
+import {db} from '@/firebase/firebase'
+
 export default {
 	state: {
 		beers: []
@@ -9,12 +11,17 @@ export default {
 		beers: state => state.beers
 	}, 
 	actions: {
-		async beers({commit, getters}) {
-			let beers = [];
-			for(let beer of getters.user.BeerList) {
-				beers.push(beer);
-			}
-			commit('beers', beers);
+		async beers({commit}) {
+			db.collection('beers').get().then(querySnapshot => {
+				let beers = [];
+				querySnapshot.forEach(doc => {
+					beers.push({
+						...doc.data(), 
+						id: doc.id
+					})
+				})
+				commit('beers', beers);
+			})
 		}
 	}
 }

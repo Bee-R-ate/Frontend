@@ -41,8 +41,4 @@
   .second-bg {
     background-color: var(--second-color)!important;
   }
-  .router-view {
-    height: 100vh;
-
-  }
 </style>
