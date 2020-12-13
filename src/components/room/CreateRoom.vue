@@ -107,6 +107,8 @@
 					</div>
 				</v-list>
 			</div>
+
+			<v-btn class="mt-12" :disabled="beerList.length == 0 || invitedFriends.length == 0" color="secondary" @click="createRoom">Utwórz pokój</v-btn>
 		</div>
 	</div>
 </template>
@@ -140,6 +142,9 @@
 			},
 			inviteFriend(friend) {
 				this.invitedFriends.push(friend);
+			},
+			createRoom() {
+				return;
 			}
 		}
 	}

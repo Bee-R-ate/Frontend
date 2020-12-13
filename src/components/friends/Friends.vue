@@ -46,7 +46,7 @@
 	export default {
 		data() {
 			return {
-				search: 'd.lewicki@adawards.pl',
+				search: '',
 				select: ''
 			}
 		},
@@ -74,6 +74,7 @@
 							db.collection('users').doc(this.user.docID).update({Friends: this.user.Friends}).then(() => {
 								this.$store.commit('snackbar', 'To teraz piwko!');
 								this.$store.commit('loading', false);
+								this.search = '';
 							});
 							let friends = doc.data().Friends;
 							friends.push(this.user.docID);

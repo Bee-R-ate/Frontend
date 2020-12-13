@@ -14,7 +14,7 @@ export default {
 	}, 
 
 	actions: {
-		editUser({commit, state}, userData) {
+		editUser({commit, state, dispatch}, userData) {
 			commit('loading', true);
 			if(userData.file != null) {
 				const storageRef = fb.storage().ref(`avatars/${state.user.docID}/${userData.file.name}`);
@@ -25,6 +25,7 @@ export default {
 						db.collection('users').doc(state.user.docID).update({ImageURL: downloadURL}).then(() => {
 							commit('snackbar', 'Pomyślnie dodano zdjęcie!');
 							commit('loading', false);
+							dispatch('autoLogin')
 						}).catch(() => {
 							commit('snackbar', 'Błąd serwera, przepraszamy...');
 							commit('loading', false);
@@ -54,6 +55,24 @@ export default {
 				commit('loading', false);
 			});
 
+		},
+		autoLogin({commit, dispatch}) {
+			commit('loading', true);
+			fb.auth().onAuthStateChanged(user => {
+				if(user) {
+					db.collection('users').where('Email', '==', user.email).limit(1).get().then(querySnapshot => {
+						querySnapshot.forEach(doc => {
+							commit('user', {...user, docID: doc.id, ...doc.data()})
+							commit('loading', false);
+							dispatch('friends');
+							dispatch('beers');
+						})
+					})
+				} else {
+					commit("signOut")
+					commit('loading', false);
+				}
+			});
 		}
 	}
 }

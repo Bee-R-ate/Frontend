@@ -9,7 +9,6 @@
 </template>
 <script>
   import Snackbar from './components/snackbar/Snackbar';
-  import {fb, db} from '@/firebase/firebase';
 
   export default {
     name: 'App',
@@ -22,22 +21,7 @@
       }
     },
     created() {
-      this.$store.commit('loading', true);
-      fb.auth().onAuthStateChanged(user => {
-        if(user) {
-          db.collection('users').where('Email', '==', user.email).limit(1).get().then(querySnapshot => {
-            querySnapshot.forEach(doc => {
-              this.$store.commit('user', {...user, docID: doc.id, ...doc.data()})
-              this.$store.commit('loading', false);
-              this.$store.dispatch('friends');
-              this.$store.dispatch('beers');
-            })
-          })
-        } else {
-          this.$store.commit("signOut")
-          this.$store.commit('loading', false);
-        }
-    });
+      this.$store.dispatch('autoLogin')
   }
 };
 </script>
