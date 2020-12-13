@@ -17,6 +17,13 @@
 								<div class="">
 									<v-list-item-title v-html="room.name"></v-list-item-title>
 								</div>
+								<div class="delete-friend-container">
+									<div>
+										<v-btn small-x class="" @click="deleteRoom(room)" icon>
+											<v-icon>mdi-close</v-icon>
+										</v-btn>
+									</div>
+								</div>
 							</v-list-item-content>
 						</v-list-item>
 						<v-divider v-if="i != rooms.length - 1"></v-divider>
@@ -33,12 +40,29 @@
 </template>
 
 <script>
+	import {db} from '@/firebase/firebase'
+	
 	export default {
 		computed: {
 			rooms() {
 				return this.$store.getters.myRooms;
 			}
 		},
+		methods: {
+			deleteRoom(room) {
+				if(!confirm('Czy na pewno chcesz usunąć pokój? Osoby znajdujące się w nim zostaną tam na zawsze!')) return;
+
+				this.$store.commit('loading', true);
+				db.collection('rooms').doc(room.id).delete().then(() => {
+					this.$store.commit('loading', false);
+					this.$store.commit('snackbar', 'Pomyślnie usunięto pokój!');
+
+				}).catch(() => {
+					this.$store.commit('loading', false);
+					this.$store.commit('snackbar', 'Przepraszamy, błąd serwera...');
+				})
+			}
+		}
 		
 	}
 </script>

@@ -15,7 +15,7 @@ export default {
 	},
 	actions: {
 		room({commit}, id) {
-			db.collection('rooms').doc(id).get().then(doc => {
+			db.collection('rooms').doc(id).onSnapshot(doc => {
 				commit('room', {...doc.data(), id: doc.id});
 			})
 		},

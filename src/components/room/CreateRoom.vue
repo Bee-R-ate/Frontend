@@ -108,7 +108,7 @@
 				</v-list>
 			</div>
 
-			<v-text-field v-model="name" color="black" label="Wpisz nazwę pokoju"></v-text-field>
+			<v-text-field v-model="name" class="mt-5" color="black" label="Wpisz nazwę pokoju"></v-text-field>
 
 			<v-btn class="mt-12" :disabled="beerList.length == 0 || invitedFriends.length == 0 || !name" color="secondary" @click="createRoom">Utwórz pokój</v-btn>
 		</div>
@@ -176,6 +176,15 @@
 							avgScore: 0
 						})
 					})
+					beerList[i].userScores.push({
+						userID: this.user.docID,
+						appearanceScore: 0, 
+						smellScore: 0,
+						tasteScore: 0,
+						sensationsScore: 0,
+						subjectiveScore: 0,
+						avgScore: 0
+					})
 				})
 
 				let participants = [];
@@ -195,6 +204,19 @@
 					})
 
 				})
+				participants.push({
+						userID: this.user.docID,
+						isEliminated: false,
+						isReady: false,
+						avgScores: {
+							appearance: 0, 
+							smell: 0,
+							taste: 0,
+							sensations: 0,
+							subjective: 0,
+							overall: 0
+						}
+					})
 
 				db.collection('rooms').add({
 					modID: this.user.docID,
