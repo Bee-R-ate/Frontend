@@ -14,7 +14,7 @@
 					<div @click="addToBeerList(beer)" v-if="beer.Name.toLowerCase().includes(search.toLowerCase()) && beerList.indexOf(beer) == -1">
 						<v-list-item class="px-0">
 							<v-list-item-avatar :size="60" class="ml-3">
-								<v-img :src="beer.ImageURL"></v-img>
+								<v-img :src="beer.photoUrl"></v-img>
 							</v-list-item-avatar>
 
 							<v-list-item-content class="position-relative ">
@@ -37,7 +37,7 @@
 					<div v-for="(beer, i) in beerList" :key="i">
 						<v-list-item class="px-0">
 							<v-list-item-avatar :size="60" class="ml-3">
-								<v-img :src="beer.ImageURL"></v-img>
+								<v-img :src="beer.photoUrl"></v-img>
 							</v-list-item-avatar>
 
 							<v-list-item-content class="position-relative ">

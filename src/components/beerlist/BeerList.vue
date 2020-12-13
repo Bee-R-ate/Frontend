@@ -20,7 +20,7 @@
 					<div v-if="beer.Name.toLowerCase().includes(search.toLowerCase())">
 						<v-list-item class="px-0">
 							<v-list-item-avatar :size="60" class="ml-3">
-								<v-img v-if="editFlag == undefined" :src="beer.ImageURL"></v-img>
+								<v-img v-if="editFlag == undefined" :src="beer.photoUrl"></v-img>
 								<v-img v-if="editFlag == i" :src="activePhoto"></v-img>
 
 							</v-list-item-avatar>
@@ -82,7 +82,7 @@
 				return this.$store.getters.beers;
 			},
 			activePhoto() {
-				return this.editFlag == undefined ? (this.file == null ? '' : URL.createObjectURL(this.file)) : (this.editFile == null ? this.beers[this.editFlag].ImageURL : URL.createObjectURL(this.editFile));
+				return this.editFlag == undefined ? (this.file == null ? '' : URL.createObjectURL(this.file)) : (this.editFile == null ? this.beers[this.editFlag].photoUrl : URL.createObjectURL(this.editFile));
 			}
 		},
 		methods: {
@@ -101,10 +101,10 @@
 				const storageRef = fb.storage().ref(`beers/${this.user.docID}/${this.file.name}`);
 				const uploadTask = storageRef.put(this.file);
 
-				uploadTask.on('state_changed', snapshot=>console.log(snapshot), error=>console.log(error), ()=>{
+				uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 					uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
 						let beerList = this.user.BeerList;
-						beerList.push({Name: this.name, ImageURL: downloadURL});
+						beerList.push({Name: this.name, photoUrl: downloadURL, avgAppearanceScore: 0, avgSmellScore: 0, avgTasteScore: 0, avgSensationsScore: 0, avgSubjectiveScore: 0, avgScore: 0});
 						db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
 							this.$store.commit('snackbar', 'Na zdrówko!');
 							this.$store.commit('loading', false);
@@ -145,7 +145,7 @@
 					uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 						uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
 							let beerList = this.user.BeerList;
-							beerList[i].ImageURL = downloadURL;
+							beerList[i].photoUrl = downloadURL;
 							db.collection('users').doc(this.user.docID).update({BeerList: beerList}).then(() => {
 								this.$store.commit('snackbar', 'Edytowano zdjęcię!');
 								this.$store.commit('loading', false);
