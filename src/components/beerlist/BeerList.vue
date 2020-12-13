@@ -93,6 +93,10 @@
 			addBeer() {
 				if(this.file == null || !this.$refs.form.validate()) return;
 
+				if(this.beers.find(beer => beer.Name == this.name)) {
+					this.$store.commit('snackbar', 'Wiem, że bardzo je lubisz, ale masz już takie piwo...');
+					return;
+				}
 				this.$store.commit('loading', true);
 				const storageRef = fb.storage().ref(`beers/${this.user.docID}/${this.file.name}`);
 				const uploadTask = storageRef.put(this.file);

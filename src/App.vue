@@ -22,8 +22,8 @@
     },
     created() {
       this.$store.dispatch('autoLogin')
-  }
-};
+    }
+  };
 </script>
 
 <style>

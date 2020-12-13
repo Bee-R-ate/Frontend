@@ -20,7 +20,7 @@ export default {
 				const storageRef = fb.storage().ref(`avatars/${state.user.docID}/${userData.file.name}`);
 				const uploadTask = storageRef.put(userData.file);
 
-				uploadTask.on('state_changed', snapshot=>console.log(snapshot), error=>console.log(error), ()=>{
+				uploadTask.on('state_changed', ()=>{}, error=>console.log(error), ()=>{
 					uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
 						db.collection('users').doc(state.user.docID).update({ImageURL: downloadURL}).then(() => {
 							commit('snackbar', 'Pomyślnie dodano zdjęcie!');

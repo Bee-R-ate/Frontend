@@ -114,6 +114,8 @@
 </template>
 
 <script>
+	// import {db} from '@/firebase/firebase'
+
 	export default {
 		data() {
 			return {
@@ -128,6 +130,9 @@
 			},
 			friends() {
 				return this.$store.getters.friends;
+			},
+			user() {
+				return this.$store.getters.user;
 			}
 		},
 		methods: {
@@ -144,7 +149,19 @@
 				this.invitedFriends.push(friend);
 			},
 			createRoom() {
-				return;
+				let beerList = [];
+				this.beerList.forEach(beer => {
+					beerList.push({
+						beerData: beer,
+						userScores: ''
+					})
+				})
+				// db.collection('rooms').add({
+				// 	ModID: this.user.docID,
+				// 	BeerList: this.beerList,
+
+				// })
+				
 			}
 		}
 	}
