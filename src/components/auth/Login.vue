@@ -32,20 +32,20 @@
 		methods: {
 			login() {
 				if(!this.$refs.form.validate()) return;
-
+				this.$store.commit('loading', true);
 				fb.auth().signInWithEmailAndPassword(this.email, this.password)
 				.then(user => {
 					this.$store.commit('snackbar', 'Pomyślnie zalogowano!');
+					this.$store.commit('loading', false);
 					this.$router.push('/');
 					db.collection('users').where('Email', '==', user.user.email).limit(1).get().then(querySnapshot => {
 						querySnapshot.forEach(doc => {
 							this.$store.commit('user', {...user.user, docID: doc.id, ...doc.data()})
-							console.log(doc.id)
 						})
 					})
 				})
 				.catch(error => {
-					console.log(error)
+					this.$store.commit('loading', false);
 					if(error.code == "auth/wrong-password") this.$store.commit('snackbar', 'Nieprawidłowe hasło!');
 					if(error.code == 'auth/user-not-found') this.$store.commit('snackbar', 'Taki użytkownik nie istnieje! Zarejestruj się!');
 				});

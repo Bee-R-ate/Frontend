@@ -65,17 +65,22 @@
 					this.$store.commit('snackbar', 'Myślałem, że brak znajomych to smutek, ale zapraszanie samego siebie... ;)');
 					return;
 				}
+				this.$store.commit('loading', true);
 				db.collection("users").where('Email', '==', this.search.toLowerCase()).limit(1)
 				.get().then(querySnapshot  => {
 					querySnapshot.forEach(doc => {
 						if(!this.user.Friends.includes(doc.id)) {
 							this.user.Friends.push(doc.id);
-							db.collection('users').doc(this.user.docID).update({Friends: this.user.Friends}).then(() => this.$store.commit('snackbar', 'To teraz piwko!'));
+							db.collection('users').doc(this.user.docID).update({Friends: this.user.Friends}).then(() => {
+								this.$store.commit('snackbar', 'To teraz piwko!');
+								this.$store.commit('loading', false);
+							});
 							let friends = doc.data().Friends;
 							friends.push(this.user.docID);
 							db.collection('users').doc(doc.id).update({Friends: friends})
 							this.$store.dispatch('friends');
 						} else {
+							this.$store.commit('loading', false);
 							this.$store.commit('snackbar', 'Już masz tego znajomego. Dodanie go drugi raz nie sprawi, że będzie Cię lubił bardziej...')
 						}
 					})

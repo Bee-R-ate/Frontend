@@ -43,10 +43,11 @@
 			},
 			register() {
 				if(!this.$refs.form.validate()) return;
-
+				this.$store.commit('loading', true);
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
 					this.$store.commit('user', result.user);
+					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					this.$router.push('/');
 					db.collection('users').add({
@@ -64,7 +65,7 @@
 					})
 				})
 				.catch((error) => {
-					console.log(error)
+					this.$store.commit('loading', false);
 					if(error.code == "auth/email-already-in-use") this.$store.commit('snackbar', 'Taki email już istnieje!');
 					if(error.code == 'auth/internal-error') this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
 				});
