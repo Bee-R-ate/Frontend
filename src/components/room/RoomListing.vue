@@ -10,12 +10,12 @@
 			
 			<v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
 				<div v-for="(room, i) in rooms" :key="i">
-					<router-link :to="`/pokoj/${room.id}`">
+					<router-link :to="`/pokoj/${room}`">
 						<v-list-item class="px-0">
 
 							<v-list-item-content class="pa-5">
 								<div class="">
-									<v-list-item-title v-html="room.name"></v-list-item-title>
+									<v-list-item-title v-html="roomsData[i] ? roomsData[i].name : ''"></v-list-item-title>
 								</div>
 								<div class="delete-friend-container">
 									<div>
@@ -43,9 +43,26 @@
 	import {db} from '@/firebase/firebase'
 	
 	export default {
+		data() {
+			return {
+				roomsData: []
+			}
+		},
+		watch: {
+			rooms() {
+				if(this.rooms.length > 0) {
+					this.rooms.forEach(async room => {
+
+						let promise = await db.collection('rooms').doc(room).get();
+						let data = {...promise.data(), id: promise.id}
+						if(this.roomsData.indexOf(data) == -1) this.roomsData.push(data);
+					})
+				}
+			},
+		},
 		computed: {
 			rooms() {
-				return this.$store.getters.myRooms;
+				return this.$store.getters.user.myRooms == undefined ? [] : this.$store.getters.user.myRooms;
 			}
 		},
 		methods: {

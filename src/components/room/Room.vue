@@ -26,7 +26,9 @@
 				</div>
 			</v-list>
 
-			<v-btn :disabled="mod == undefined ? true : mod.isReady" class="mt-5" color="success" x-large @click="ready">Zgłoś gotowość!</v-btn>
+			<v-btn :disabled="mod == undefined ? true : mod.isReady" class="mt-5" color="success"  @click="ready">Zgłoś gotowość!</v-btn>
+
+			<v-btn x-large color="secondary" class="mt-10" :disabled="room.participants.some(user => user.isReady)">Rozpocznij debatę!</v-btn>
 			
 
 		</div>

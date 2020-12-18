@@ -66,7 +66,6 @@ export default {
 							commit('loading', false);
 							dispatch('friends');
 							dispatch('beers');
-							dispatch('myRooms');
 						})
 					})
 				} else {

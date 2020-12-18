@@ -151,6 +151,18 @@
 			inviteFriend(friend) {
 				this.invitedFriends.push(friend);
 			},
+			saveMyRooms(roomID) {
+				let friends = this.invitedFriends;
+				friends.push({id: this.user.docID});
+				for(let friend of friends) {
+					db.collection('users').doc(friend.id).get().then(doc => {
+						console.log(doc.data())
+						let myRooms = doc.data().myRooms;
+						myRooms.push(roomID);
+						db.collection('users').doc(friend.id).update({myRooms});
+					})
+				}
+			},
 			createRoom() {
 				this.$store.commit('loading', true);
 				let beerList = [];
@@ -205,18 +217,18 @@
 
 				})
 				participants.push({
-						userID: this.user.docID,
-						isEliminated: false,
-						isReady: false,
-						avgScores: {
-							appearance: 0, 
-							smell: 0,
-							taste: 0,
-							sensations: 0,
-							subjective: 0,
-							overall: 0
-						}
-					})
+					userID: this.user.docID,
+					isEliminated: false,
+					isReady: false,
+					avgScores: {
+						appearance: 0, 
+						smell: 0,
+						taste: 0,
+						sensations: 0,
+						subjective: 0,
+						overall: 0
+					}
+				})
 
 				db.collection('rooms').add({
 					modID: this.user.docID,
@@ -227,6 +239,7 @@
 				}).then(doc => {
 					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Pomyślnie utworzono pokój!');
+					this.saveMyRooms(doc.id);
 					this.$router.push(`/pokoj/${doc.id}`);
 				}).catch(() => {
 					this.$store.commit('loading', false);

@@ -56,6 +56,7 @@
 						imageURL: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
 						ID: result.user.uid,
 						friends: [],
+						myRooms: []
 					}).then(doc => {
 						this.$store.commit('user', {...this.$store.getters.user, docID: doc.id, ...doc.data()})
 					})
