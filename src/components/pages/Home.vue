@@ -5,7 +5,7 @@
 			<img width="auto" height="220px" src="@/assets/logo.png" alt="logo bee-r-ate">
 			<h2 class="home-title">Bee-R-ate</h2>
 			<p class="home-subtitle">Rozpocznij swoją piwną debatę!</p>
-			<div v-if="!$store.getters.user.uid">
+			<div v-if="!$store.getters.user.docID">
 				<v-btn class="mb-5" link to="/logowanie" color="secondary">Zaloguj się!</v-btn>
 				<p class="mb-1" style="font-size: .9rem">Nie masz konta?</p>
 				<v-btn link to="/rejestracja" color="secondary">Zarejestruj się</v-btn>

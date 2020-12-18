@@ -78,7 +78,7 @@
 				</div>
 			</v-list>
 			<div class="mt-3" v-else>
-				Nie masz w tej chwili znajomych. <router-link to="/znajomi">Kliknij, aby się uspołecznić</router-link>.
+				Nie masz w tej chwili znajomych. <router-link to="/znajomi">Kliknij, aby się uspołecznić.</router-link>
 			</div>
 
 			<div v-if="invitedFriends.length > 0">

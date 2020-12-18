@@ -19,7 +19,7 @@
 								</div>
 								<div class="delete-friend-container">
 									<div>
-										<v-btn small-x class="" @click="deleteRoom(room)" icon>
+										<v-btn v-if="roomsData[i] ? roomsData[i].modID == user.docID : false" small-x class="" @click="deleteRoom(room)" icon>
 											<v-icon>mdi-close</v-icon>
 										</v-btn>
 									</div>
@@ -50,19 +50,15 @@
 		},
 		watch: {
 			rooms() {
-				if(this.rooms.length > 0) {
-					this.rooms.forEach(async room => {
-
-						let promise = await db.collection('rooms').doc(room).get();
-						let data = {...promise.data(), id: promise.id}
-						if(this.roomsData.indexOf(data) == -1) this.roomsData.push(data);
-					})
-				}
+				this.getRoomsData()
 			},
 		},
 		computed: {
 			rooms() {
 				return this.$store.getters.user.myRooms == undefined ? [] : this.$store.getters.user.myRooms;
+			},
+			user() {
+				return this.$store.getters.user;
 			}
 		},
 		methods: {
@@ -78,7 +74,20 @@
 					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Przepraszamy, błąd serwera...');
 				})
+			},
+			getRoomsData() {
+				if(this.rooms.length > 0) {
+					this.rooms.forEach(async room => {
+
+						let promise = await db.collection('rooms').doc(room).get();
+						let data = {...promise.data(), id: promise.id}
+						if(this.roomsData.indexOf(data) == -1) this.roomsData.push(data);
+					})
+				}
 			}
+		},
+		created() {
+			this.getRoomsData()
 		}
 		
 	}

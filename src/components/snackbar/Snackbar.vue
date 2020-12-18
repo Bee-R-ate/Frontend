@@ -4,8 +4,8 @@
 			<span class="black--text">{{ text }}</span>
 
 			<template v-slot:action="{ attrs }">
-				<v-btn color="black" text v-bind="attrs" @click="snackbar = false" >
-					Zamknij
+				<v-btn color="black" icon v-bind="attrs" @click="$store.commit('unsetSnackbar')" >
+					<v-icon>mdi-close</v-icon>
 				</v-btn>
 			</template>
 		</v-snackbar>

@@ -58,11 +58,11 @@ export default {
 		},
 		autoLogin({commit, dispatch}) {
 			commit('loading', true);
-			fb.auth().onAuthStateChanged(user => {
+			let user = JSON.parse(localStorage.getItem('user'));
 				if(user) {
-					db.collection('users').where('email', '==', user.email).limit(1).get().then(querySnapshot => {
+					db.collection('users').where('email', '==', user.email).limit(1).onSnapshot(querySnapshot => {
 						querySnapshot.forEach(doc => {
-							commit('user', {...user, docID: doc.id, ...doc.data()})
+							commit('user', {docID: doc.id, ...doc.data()})
 							commit('loading', false);
 							dispatch('friends');
 							dispatch('beers');
@@ -72,7 +72,6 @@ export default {
 					commit("signOut")
 					commit('loading', false);
 				}
-			});
 		}
 	}
 }

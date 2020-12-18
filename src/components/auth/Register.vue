@@ -46,7 +46,7 @@
 				this.$store.commit('loading', true);
 				fb.auth().createUserWithEmailAndPassword(this.email, this.password)
 				.then((result) => {
-					this.$store.commit('user', result.user);
+					localStorage.setItem('user', JSON.stringify(result.user));
 					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Pomyślnie zarejestrowano!');
 					this.$router.push('/');
@@ -57,8 +57,8 @@
 						ID: result.user.uid,
 						friends: [],
 						myRooms: []
-					}).then(doc => {
-						this.$store.commit('user', {...this.$store.getters.user, docID: doc.id, ...doc.data()})
+					}).then(() => {
+						this.$store.dispatch('autoLogin')
 					})
 					return result.user.updateProfile({
 						displayName: this.name
