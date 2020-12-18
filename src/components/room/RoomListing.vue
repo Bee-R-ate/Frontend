@@ -10,7 +10,7 @@
 			
 			<v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
 				<div v-for="(room, i) in rooms" :key="i">
-					<router-link :to="`/pokoj/${room}`">
+					<router-link :to="roomsData[i] ? (roomsData[i].inProgress ? `/rozgrywka/${room}` : `/pokoj/${room}`) : ''">
 						<v-list-item class="px-0">
 
 							<v-list-item-content class="pa-5">

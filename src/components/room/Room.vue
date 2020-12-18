@@ -67,7 +67,7 @@
 
 			<v-btn :disabled="mod == undefined ? true : mod.isReady" class="mt-5" color="success"  @click="ready">Zgłoś gotowość!</v-btn>
 
-			<v-btn x-large color="secondary" class="mt-10" :disabled="room.participants ? room.participants.some(user => !user.isReady) : true">Rozpocznij debatę!</v-btn>
+			<v-btn v-if="room.modID == user.docID" x-large color="secondary" @click="start" class="mt-10" :disabled="room.participants ? room.participants.some(user => !user.isReady) : true">Rozpocznij debatę!</v-btn>
 			
 
 		</div>
@@ -99,6 +99,9 @@
 					if(!this.room.participants.find(participant => participant.userID == this.user.docID)) {
 						this.$store.commit('snackbar', 'Zostałeś usunięty z pokoju...');
 						this.$router.push('/');
+					}
+					if(this.room.inProgress) {
+						this.$router.push(`/rozgrywka/${this.room.id}`);
 					}
 				}
 			}
@@ -207,6 +210,18 @@
 					this.$store.commit('loading', false);
 				});
 				
+			},
+			start() {
+				this.$store.commit('loading', true);
+				let participants = this.room.participants;
+				participants.forEach(participant => participant.isReady = false);
+				db.collection('rooms').doc(this.room.id).update({inProgress: true, participants}).then(() => {
+					this.$store.commit('snackbar', 'Niech rozpocznie się piwna debata!');
+					this.$store.commit('loading', false);
+				}).catch(() => {
+					this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
+					this.$store.commit('loading', false);
+				})
 			}
 		},
 		created() {

@@ -235,7 +235,8 @@
 					beerList,
 					participants,
 					inProgress: false,
-					name: this.name
+					name: this.name,
+					currentBeer: 0
 				}).then(doc => {
 					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Pomyślnie utworzono pokój!');
