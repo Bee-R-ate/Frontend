@@ -19,7 +19,7 @@
 								</div>
 								<div class="delete-friend-container">
 									<div>
-										<v-btn v-if="roomsData[i] ? roomsData[i].modID == user.docID : false" small-x class="" @click="deleteRoom(room)" icon>
+										<v-btn v-if="roomsData[i] ? roomsData[i].modID == user.docID : false" small-x class="" @click="deleteRoom(room, i)" icon>
 											<v-icon>mdi-close</v-icon>
 										</v-btn>
 									</div>
@@ -62,11 +62,19 @@
 			}
 		},
 		methods: {
-			deleteRoom(room) {
+			async deleteRoom(room, i) {
 				if(!confirm('Czy na pewno chcesz usunąć pokój? Osoby znajdujące się w nim zostaną tam na zawsze!')) return;
 
 				this.$store.commit('loading', true);
-				db.collection('rooms').doc(room.id).delete().then(() => {
+				this.roomsData[i].participants.forEach(async participant => {
+					await db.collection('users').doc(participant.userID).get().then(async doc => {
+						let myRooms = doc.data().myRooms;
+						myRooms.splice(myRooms.indexOf(room), 1);
+						await db.collection('users').doc(participant.userID).update({myRooms});
+					})
+				})
+
+				await db.collection('rooms').doc(room).delete().then(() => {
 					this.$store.commit('loading', false);
 					this.$store.commit('snackbar', 'Pomyślnie usunięto pokój!');
 

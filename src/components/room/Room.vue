@@ -87,7 +87,7 @@
 		},
 		watch: {
 			'room.participants'() {
-				this.setParticipantsData();
+				if(this.room.participants) this.setParticipantsData();
 			},
 			room: {
 				deep: true,
@@ -96,7 +96,8 @@
 						this.$store.commit('snackbar', 'Niestety pokój został usunięty, ktoś chyba nie potrafi się dobrze bawić...');
 						this.$router.push('/');
 					}
-					if(!this.room.participants.find(participant => participant.userID == this.user.docID)) {
+
+					if(this.room.participants && !this.room.participants.find(participant => participant.userID == this.user.docID)) {
 						this.$store.commit('snackbar', 'Zostałeś usunięty z pokoju...');
 						this.$router.push('/');
 					}
@@ -154,7 +155,10 @@
 				this.$store.commit('loading', true);
 				let participants = this.room.participants;
 				participants.splice(participants.indexOf(participant), 1);
-				db.collection('rooms').doc(this.room.id).update({participants}).then(() => {
+				let beerList = this.room.beerList;
+				beerList.forEach(beer => beer.userScores.splice(beer.userScores.indexOf(beer.userScores.find(scores => scores.userID == participant.userID)) ,1))
+
+				db.collection('rooms').doc(this.room.id).update({participants, beerList}).then(() => {
 					this.$store.commit('snackbar', 'Bez niego będzie lepiej...');
 					this.$store.commit('loading', false);
 					db.collection('users').doc(participant.userID).get().then(doc => {

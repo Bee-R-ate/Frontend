@@ -48,9 +48,16 @@
 				deep: true,
 				handler() {
 					if(this.room.beerList) this.setBeersData();
-					if(this.room.participants) {
-						this.setParticipantsData();
-						if(this.room.participants.some(participant => participant.isReady)) this.nextBeer();
+					if(this.room.participants) this.setParticipantsData();
+				}
+			},
+			'room.participants'() {
+				if(this.room.participants) {
+					let status = true;
+					this.room.participants.forEach(user => !user.isReady ? status = false : true);
+					if(status) {
+						if(this.room.currentBeer == this.room.beerList.length - 1) this.calculateAverages();
+						else this.nextBeer();
 					}
 				}
 			}
@@ -67,8 +74,28 @@
 			}
 		},
 		methods: {
+			resetScores() {
+				this.taste = 0;
+				this.smell = 0;
+				this.subjective = 0;
+				this.sensations = 0;
+				this.appearance = 0;
+			},
+			calculateAverages() {
+				console.log('obliczanko')
+			},
 			nextBeer() {
-				console.log(this.room.participants.some(participant => participant.isReady));
+				this.$store.commit('loading', true);
+				let currentBeer = this.room.currentBeer+1;
+				let participants = this.room.participants;
+				participants.forEach(user => user.isReady = false);
+				db.collection('rooms').doc(this.room.id).update({currentBeer, participants}).then(() => {
+					this.$store.commit('snackbar', 'Kolejne piwo!');
+					this.$store.commit('loading', false);
+				}).catch(() => {
+					this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
+					this.$store.commit('loading', false);
+				})
 			},
 			setBeersData() {
 				this.room.beerList.forEach(async beer => {

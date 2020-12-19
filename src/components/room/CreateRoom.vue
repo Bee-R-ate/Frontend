@@ -156,7 +156,6 @@
 				friends.push({id: this.user.docID});
 				for(let friend of friends) {
 					db.collection('users').doc(friend.id).get().then(doc => {
-						console.log(doc.data())
 						let myRooms = doc.data().myRooms;
 						myRooms.push(roomID);
 						db.collection('users').doc(friend.id).update({myRooms});
