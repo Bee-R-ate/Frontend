@@ -10,20 +10,14 @@
 			
 			<v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
 				<div v-for="(room, i) in rooms" :key="i">
-					<router-link :to="roomsData[i] ? (roomsData[i].inProgress ? `/rozgrywka/${room}` : `/pokoj/${room}`) : ''">
+					<router-link :to="roomsData[i] ? setRoomLink(room, i) : '/moje-pokoje'">
 						<v-list-item class="px-0">
 
 							<v-list-item-content class="pa-5">
 								<div class="">
 									<v-list-item-title v-html="roomsData[i] ? roomsData[i].name : ''"></v-list-item-title>
 								</div>
-								<div class="delete-friend-container">
-									<div>
-										<v-btn v-if="roomsData[i] ? roomsData[i].modID == user.docID : false" small-x class="" @click="deleteRoom(room, i)" icon>
-											<v-icon>mdi-close</v-icon>
-										</v-btn>
-									</div>
-								</div>
+								
 							</v-list-item-content>
 						</v-list-item>
 						<v-divider v-if="i != rooms.length - 1"></v-divider>
@@ -62,26 +56,11 @@
 			}
 		},
 		methods: {
-			async deleteRoom(room, i) {
-				if(!confirm('Czy na pewno chcesz usunąć pokój? Osoby znajdujące się w nim zostaną tam na zawsze!')) return;
-
-				this.$store.commit('loading', true);
-				this.roomsData[i].participants.forEach(async participant => {
-					await db.collection('users').doc(participant.userID).get().then(async doc => {
-						let myRooms = doc.data().myRooms;
-						myRooms.splice(myRooms.indexOf(room), 1);
-						await db.collection('users').doc(participant.userID).update({myRooms});
-					})
-				})
-
-				await db.collection('rooms').doc(room).delete().then(() => {
-					this.$store.commit('loading', false);
-					this.$store.commit('snackbar', 'Pomyślnie usunięto pokój!');
-
-				}).catch(() => {
-					this.$store.commit('loading', false);
-					this.$store.commit('snackbar', 'Przepraszamy, błąd serwera...');
-				})
+			setRoomLink(room, i) {
+				let segment = 'pokoj';
+				if(this.roomsData[i].inProgress) segment = 'rozgrywka';
+				if(!this.roomsData[i].inProgress && this.roomsData[i].currentBeer != 0) segment = 'wyniki';
+				return `/${segment}/${room}`;
 			},
 			getRoomsData() {
 				if(this.rooms.length > 0) {

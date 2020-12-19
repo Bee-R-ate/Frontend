@@ -19,16 +19,24 @@
 				<div v-for="(beer, i) in beers" :key="i">
 					<div v-if="beer.name.toLowerCase().includes(search.toLowerCase())">
 						<v-list-item class="px-0">
-							<v-list-item-avatar :size="60" class="ml-3">
-								<v-img v-if="editFlag == undefined" :src="beer.photoUrl"></v-img>
-								<v-img v-if="editFlag == i" :src="activePhoto"></v-img>
+							<v-list-item-avatar :size="160" class="ml-3">
+								<v-img v-if="editFlag != i" :src="beer.photoUrl"></v-img>
+								<v-img v-else :src="activePhoto"></v-img>
 
 							</v-list-item-avatar>
 
 							<v-list-item-content class="position-relative ">
 								<div class="pr-3 py-3">
-									<v-list-item-title v-if="editFlag == undefined" v-html="beer.name"></v-list-item-title>
-									<div v-if="editFlag == i">
+									<div class="text-left" v-if="editFlag != i">
+										<v-list-item-title class="font-weight-bold mb-2" style="font-size: 2rem"  v-html="beer.name"></v-list-item-title>
+										<h4 class="mb-1">Średnie piwa: </h4>
+										<p class="mb-0">Smak: {{ beer.avgTasteScore.toFixed(1) }}</p>
+										<p class="mb-0">Zapach: {{ beer.avgSmellScore.toFixed(1) }}</p>
+										<p class="mb-0">Odczucia w ustach: {{ beer.avgSensationsScore.toFixed(1) }}</p>
+										<p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
+										<h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+									</div>
+									<div v-else>
 										<v-text-field label="Wpisz nazwę" :rules="[rules.required]" v-model="beer.name"></v-text-field>
 										<v-file-input show-size accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif" :rules="[rules.fileSize]" color="black" class="mt-0" v-model="editFile" label="Zdjęcie piwa"></v-file-input>
 										<v-btn color="secondary" v-if="editFlag == i" @click="editBeer(beer)">Zapisz</v-btn>
@@ -40,9 +48,7 @@
 										<v-btn small-x class="" @click="editFlag = i" icon>
 											<v-icon>mdi-pencil</v-icon>
 										</v-btn>
-										<v-btn small-x class="" @click="deleteBeer(beer)" icon>
-											<v-icon>mdi-close</v-icon>
-										</v-btn>
+										
 									</div>
 								</div>
 							</v-list-item-content>
@@ -119,22 +125,6 @@
 					});
 				});
 			},
-			deleteBeer(beer) {
-				if(!confirm(`Czy na pewno chcesz usunąć piwko ${beer.name}?`)) return;
-
-				this.$store.commit('loading', true);
-				db.collection('beers').doc(beer.id).delete().then(() => {
-					this.$store.commit('snackbar', 'A mogło być dobre...');
-					this.$store.commit('loading', false);
-					this.$store.dispatch('beers');
-				}).catch(() => {
-					this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
-					this.$store.commit('loading', false);
-				})
-
-				
-			},
-
 			editBeer(beer) {
 				if(!this.$refs.form.validate()) return;
 				this.$store.commit('loading', true);

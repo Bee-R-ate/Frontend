@@ -92,11 +92,6 @@
 			room: {
 				deep: true,
 				handler() {
-					if(this.room.modID == undefined) {
-						this.$store.commit('snackbar', 'Niestety pokój został usunięty, ktoś chyba nie potrafi się dobrze bawić...');
-						this.$router.push('/');
-					}
-
 					if(this.room.participants && !this.room.participants.find(participant => participant.userID == this.user.docID)) {
 						this.$store.commit('snackbar', 'Zostałeś usunięty z pokoju...');
 						this.$router.push('/');

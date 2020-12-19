@@ -1,0 +1,91 @@
+<template>
+	<div class="d-flex justify-center home home-container">
+		<div class="home-content position-relative">
+			<div class="back-container" >
+				<v-btn link to="/moje-pokoje" icon>
+					<v-icon>mdi-arrow-left-circle</v-icon>
+				</v-btn>
+			</div>
+			
+			<h2 class="home-title mb-8">{{ room.name }} wyniki</h2>
+			<v-list v-if="room.beerList && room.beerList.length > 0" class="py-0 mt-3 friend-list">
+				<div v-for="(beer, i) in room.beerList" :key="i">
+					<v-list-item class="px-0">
+						<v-list-item-avatar :size="160" class="ml-3">
+							<v-img  :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
+						</v-list-item-avatar>
+						<v-list-item-content class="pa-5 text-left">
+							<div class="">
+								<v-list-item-title class="font-weight-bold mb-2" style="font-size: 2rem" v-html="beersData[i] ? beersData[i].name : ''"></v-list-item-title>
+								<h4 class="mb-1">Średnie piwa: </h4>
+								<p class="mb-0">Smak: {{ beer.avgTasteScore.toFixed(1) }}</p>
+								<p class="mb-0">Zapach: {{ beer.avgSmellScore.toFixed(1) }}</p>
+								<p class="mb-0">Odczucia w ustach: {{ beer.avgSensationsScore.toFixed(1) }}</p>
+								<p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
+								<h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+							</div>
+
+						</v-list-item-content>
+					</v-list-item>
+					<v-divider v-if="i != room.beerList.length - 1"></v-divider>
+				</div>
+			</v-list>
+			
+		</div>
+	</div>
+</template>
+
+<script>
+	import {db} from '@/firebase/firebase'
+
+	export default {
+		data() {
+			return {
+				beersData: [],
+				participantsData: [],
+			}
+		},
+		computed: {
+			room() {
+				return this.$store.getters.room;
+			},
+			user() {
+				return this.$store.getters.user;
+			}
+		},
+		watch: {
+			room: {
+				deep: true,
+				handler() {
+					if(this.room.beerList) this.setBeersData();
+					if(this.room.participants) this.setParticipantsData();
+				}
+			},
+		},
+		methods: {
+			setBeersData() {
+				this.room.beerList.forEach(async beer => {
+
+					let promise = await db.collection('beers').doc(beer.beerID).get();
+					let data = {...promise.data(), id: promise.id}
+					if(this.beersData.find(beerData => beerData.id == data.id) == undefined) {
+						this.beersData.push(data);
+					}
+				})
+			},
+			setParticipantsData() {
+				this.room.participants.forEach(async participant => {
+
+					let promise = await db.collection('users').doc(participant.userID).get();
+					let data = {...promise.data(), id: promise.id}
+					if(this.participantsData.find(userData => userData.id == data.id) == undefined) {
+						this.participantsData.push(data);
+					}
+				})
+			}, 
+		},
+		created() {
+			this.$store.dispatch('room', this.$route.params.id);
+		}
+	}
+</script>

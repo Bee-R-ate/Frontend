@@ -8,6 +8,7 @@ import CreateRoom from '@/components/room/CreateRoom'
 import Room from '@/components/room/Room'
 import RoomListing from '@/components/room/RoomListing'
 import Game from '@/components/room/Game'
+import Results from '@/components/room/Results'
 import Friends from '@/components/friends/Friends'
 import Profile from '@/components/profile/Profile.vue'
 import BeerList from '@/components/beerlist/BeerList.vue'
@@ -24,6 +25,7 @@ const routes = [
 	{ path: '/piwa', component: BeerList, name: 'BeerList' },
 	{ path: '/rozgrywka/:id', component: Game, name: 'Game' },
 	{ path: '/pokoj/:id', component: Room, name: 'Room' },
+	{ path: '/wyniki/:id', component: Results, name: 'Results' },
 	{ path: '/moje-pokoje', component: RoomListing, name: 'RoomListing' },
 ]
 
