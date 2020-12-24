@@ -94,7 +94,7 @@
 		top: 0;
 	}
 	.home-container.profile {
-		overflow-y: scroll;
+		/*overflow-y: scroll;*/
 	}
 	.profile-photo {
 		max-width: 150px;

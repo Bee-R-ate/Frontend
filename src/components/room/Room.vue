@@ -1,7 +1,7 @@
 <template>
 	<div class="d-flex justify-center home-container">
 		<div class="home-content position-relative friends">
-			<div class="back-container">
+			<div class="back-container" style="top: -2%">
 				<v-btn link to="/moje-pokoje" icon>
 					<v-icon>mdi-arrow-left-circle</v-icon>
 				</v-btn>
@@ -18,7 +18,59 @@
 					<v-icon>mdi-check</v-icon>
 				</v-btn>
 			</div>
+
 			<div v-if="room.modID == user.docID && room.participants">
+				<h2 class="home-title">Lista piw</h2>
+				<p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
+				<v-text-field color="black" label="Znajdź piwo..." prepend-icon="mdi-magnify" v-model="search"></v-text-field>
+				<v-list v-if="beers.length > 0" class="py-0 friend-list">
+					<div v-for="(beer, i) in beers" :key="i">
+						<div @click="addToBeerList(beer)" v-if="beer.name.toLowerCase().includes(search.toLowerCase()) && !room.beerList.find(b => b.beerID == beer.id)">
+							<v-list-item class="px-0">
+								<v-list-item-avatar :size="60" class="ml-3">
+									<v-img :src="beer.photoUrl"></v-img>
+								</v-list-item-avatar>
+
+								<v-list-item-content class="position-relative ">
+									<div class="pr-3 py-3">
+										<v-list-item-title v-html="beer.name"></v-list-item-title>
+									</div>
+								</v-list-item-content>
+							</v-list-item>
+							<v-divider v-if="i != beers.length - 1"></v-divider>
+						</div>
+					</div>
+				</v-list>
+				<div v-else>
+					Nie masz w tej chwili piw, <router-link to="/piwa">zneutralizuj suszę i dodaj piwa.</router-link>
+				</div>
+
+				<div class="mb-5" v-if="room.beerList.length > 0">
+					<h2 class="home-title">Wybrane piwa:</h2>
+					<v-list class="py-0 mt-3 friend-list">
+						<div v-for="(beer, i) in room.beerList" :key="i">
+							<v-list-item class="px-0">
+								<v-list-item-avatar :size="60" class="ml-3">
+									<v-img :src="getBeerData(beer).photoUrl"></v-img>
+								</v-list-item-avatar>
+
+								<v-list-item-content class="position-relative ">
+									<div class="pr-3 py-3">
+										<v-list-item-title v-html="getBeerData(beer).name"></v-list-item-title>
+									</div>
+									<div class="delete-friend-container">
+										<div>
+											<v-btn small-x class="" @click="deleteFromBeerList(beer)" icon>
+												<v-icon>mdi-close</v-icon>
+											</v-btn>
+										</div>
+									</div>
+								</v-list-item-content>
+							</v-list-item>
+							<v-divider v-if="i != beers.length - 1"></v-divider>
+						</div>
+					</v-list>
+				</div>
 
 				<h2 class="home-title">Zaproś graczy!</h2>
 				<v-list v-if="friends.length > 0" class="py-0 mt-3 friend-list">
@@ -82,7 +134,8 @@
 			return {
 				participantsData: [],
 				editName: false,
-				newUser: ''
+				newUser: '',
+				search: '',
 			}
 		},
 		watch: {
@@ -109,6 +162,9 @@
 			user() {
 				return this.$store.getters.user;
 			},
+			beers() {
+				return this.$store.getters.beers;
+			},
 			mod() {
 				return this.room.participants == undefined ? {} : this.room.participants.find(user => user.userID == this.user.docID);
 			},
@@ -118,6 +174,58 @@
 			
 		},
 		methods: {
+			getBeerData(beer) {
+				return this.beers.find(b => b.id == beer.beerID);
+			},
+			addToBeerList(beer) {
+				this.$store.commit('loading', true);
+				let beerList = this.room.beerList;
+				let userScores = [];
+				this.room.participants.forEach(participant => {
+					userScores.push({
+						userID: participant.userID,
+						appearanceScore: 0, 
+						smellScore: 0,
+						tasteScore: 0,
+						sensationsScore: 0,
+						subjectiveScore: 0,
+						avgScore: 0
+					})
+				});
+
+				beerList.push({
+					beerID: beer.id,
+					avgAppearanceScore: 0, 
+					avgSmellScore: 0, 
+					avgTasteScore: 0, 
+					avgSensationsScore: 0, 
+					avgSubjectiveScore: 0, 
+					avgScore: 0,
+					userScores
+				})
+
+				db.collection('rooms').doc(this.room.id).update({beerList}).then(() => {
+					this.$store.commit('snackbar', 'Pomyślnie dodano do listy piw!');
+					this.$store.commit('loading', false);
+				}).catch(() => {
+					this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
+					this.$store.commit('loading', false);
+				});
+			},
+			deleteFromBeerList(beer) {
+				if(!confirm(`Czy na pewno usunąć piwo ${this.getBeerData(beer).name} z listy?`)) return;
+				this.$store.commit('loading', true);
+
+				let beerList = this.room.beerList;
+				beerList.splice(beerList.indexOf(beer), 1);
+				db.collection('rooms').doc(this.room.id).update({beerList}).then(() => {
+					this.$store.commit('snackbar', 'Pomyślnie usunięto z listy piw!');
+					this.$store.commit('loading', false);
+				}).catch(() => {
+					this.$store.commit('snackbar', 'Błąd serwera, przepraszamy...');
+					this.$store.commit('loading', false);
+				});
+			},
 			ready() {
 				let participants = this.room.participants;
 				participants[participants.indexOf(participants.find(participant => participant.userID == this.user.docID))].isReady = true;

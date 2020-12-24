@@ -253,7 +253,7 @@
 
 <style>
 	.create-room {
-		overflow-y: scroll;
+		/*overflow-y: scroll;*/
 	}
 
 	.create-room .home-title {

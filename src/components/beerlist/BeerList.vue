@@ -1,7 +1,7 @@
 <template>
 	<div class="d-flex justify-center home-container beers">
 		<div class="home-content position-relative text-center friends ">
-			<div class="back-container">
+			<div class="back-container" style="top: -2%">
 				<v-btn link to="/" icon>
 					<v-icon>mdi-arrow-left-circle</v-icon>
 				</v-btn>
@@ -166,6 +166,6 @@
 		width: unset!important;
 	}
 	.beers {
-		overflow-y: scroll; 
+		/*overflow-y: scroll; */
 	}
 </style>
