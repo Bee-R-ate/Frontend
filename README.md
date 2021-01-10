@@ -1,5 +1,11 @@
 # bee-r-ate
 
+## Commit etiquette
+
+ENGLISH DO YOU SPEAK IT!
+
+Use emoji according to [this list](https://gist.github.com/parmentf/035de27d6ed1dce0b36a)
+
 ## Project setup
 ```
 npm install
