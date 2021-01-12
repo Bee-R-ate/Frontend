@@ -7,6 +7,7 @@ import Loading from "./modules/loading.module";
 import Friends from "./modules/friends.module";
 import Beers from "./modules/beers.module";
 import Room from "./modules/room.module";
+import Users from "./modules/users.module";
 
 Vue.use(Vuex);
 
@@ -18,5 +19,6 @@ export default new Vuex.Store({
     Friends,
     Beers,
     Room,
+    Users,
   },
 });

@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import Home from "@/components/pages/Home";
+import Home from "@/pages/Home";
 import Register from "@/components/auth/Register";
 import Login from "@/components/auth/Login";
 import CreateRoom from "@/components/room/CreateRoom";
@@ -15,7 +15,7 @@ import BeerList from "@/components/beerlist/BeerList.vue";
 
 Vue.use(VueRouter);
 
-const routes = [
+const router = [
   { path: "/", component: Home, name: "Home" },
   { path: "/rejestracja", component: Register, name: "Register" },
   { path: "/logowanie", component: Login, name: "Login" },
@@ -30,6 +30,6 @@ const routes = [
 ];
 
 export default new VueRouter({
-  routes,
+  routes: router,
   mode: "history",
 });

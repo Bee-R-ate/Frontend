@@ -192,7 +192,7 @@ export default {
     },
     saveMyRooms(roomID) {
       let friends = this.invitedFriends;
-      friends.push({ id: this.user.docID });
+      friends.push({ id: this.user.uid });
       for (let friend of friends) {
         db.collection("users")
           .doc(friend.id)

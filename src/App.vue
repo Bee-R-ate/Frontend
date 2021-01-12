@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <router-view class="pa-10 second-bg router-view"></router-view>
+    <router-view class="pa-10 second-bg router-view" />
     <Snackbar />
     <v-overlay color="#ca9b17" :value="loading" opacity="1">
       <v-progress-circular
@@ -14,6 +14,7 @@
 </template>
 <script>
 import Snackbar from "./components/snackbar/Snackbar";
+import { mapGetters } from "vuex";
 
 export default {
   name: "App",
@@ -21,12 +22,7 @@ export default {
     Snackbar,
   },
   computed: {
-    loading() {
-      return this.$store.getters.loading;
-    },
-  },
-  created() {
-    this.$store.dispatch("autoLogin");
+    ...mapGetters(["loading", "authIsLoading"]),
   },
 };
 </script>

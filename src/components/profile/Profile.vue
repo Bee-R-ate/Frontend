@@ -23,6 +23,9 @@
               v-model="file"
               label="Zdjęcie"
             ></v-file-input>
+            <v-btn @click="editProfilePicture" class="mb-3" color="secondary"
+              >Zmień zdjęcie</v-btn
+            >
           </v-col>
           <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
             <v-text-field
@@ -31,15 +34,20 @@
               v-model="user.name"
               label="Imię i nazwisko"
             ></v-text-field>
+            <v-btn @click="editProfileName" class="mb-3" color="secondary"
+              >Zmień nazwę</v-btn
+            >
           </v-col>
           <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
             <v-text-field
               color="black"
               class="mt-0"
               v-model="user.email"
-              disabled
               label="Adres E-mail"
             ></v-text-field>
+            <v-btn @click="editProfileEmail" class="mb-3" color="secondary"
+              >Zmień adres e-mail</v-btn
+            >
           </v-col>
           <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
             <v-text-field
@@ -55,7 +63,7 @@
             <v-text-field
               color="black"
               type="password"
-              :rules="[newPasswordOperation]"
+              :rules="[newPasswordOperation, rules.passwordLength]"
               class="mt-0"
               v-model="newPassword"
               label="Nowe hasło"
@@ -72,9 +80,8 @@
             ></v-text-field>
           </v-col>
         </v-row>
-
-        <v-btn @click="editProfile" class="mb-3" color="secondary"
-          >Edytuj</v-btn
+        <v-btn @click="editProfilePassword" class="mb-3" color="secondary"
+          >Zmień hasło</v-btn
         >
       </v-form>
     </div>

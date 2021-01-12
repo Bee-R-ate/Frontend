@@ -11,9 +11,12 @@ export default {
     friends: (state) => state.friends,
   },
   actions: {
-    async friends({ commit, getters }) {
+    async friends({ commit, rootGetters }) {
+      console.log("fetch friends");
       let friends = [];
-      for (let id of getters.user.friends) {
+      console.log(rootGetters.user);
+
+      for (let id of rootGetters.user.friends) {
         let promise = await db.collection("users").doc(id).get();
         let friend = promise.data();
         friend.id = promise.id;
