@@ -134,6 +134,11 @@ export default {
       return userRef
         .get()
         .then(async (userDoc) => {
+          if (!userDoc.exists) {
+            dispatch("signOut");
+            commit("snackbar", translateErrors("auth/user-not-found"));
+            return;
+          }
           const user = userDoc.data();
           user.uid = uid;
 
@@ -152,6 +157,7 @@ export default {
         })
         .catch((err) => {
           dispatch("signOut");
+          console.log(err);
           commit("snackbar", translateErrors(err.code));
         });
     },
