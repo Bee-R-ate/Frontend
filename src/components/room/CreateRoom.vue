@@ -192,7 +192,7 @@ export default {
     },
     saveMyRooms(roomID) {
       let friends = this.invitedFriends;
-      friends.push({ id: this.user.docID });
+      friends.push({ id: this.user.uid });
       for (let friend of friends) {
         db.collection("users")
           .doc(friend.id)
@@ -230,7 +230,7 @@ export default {
           });
         });
         beerList[i].userScores.push({
-          userID: this.user.docID,
+          userID: this.user.uid,
           appearanceScore: 0,
           smellScore: 0,
           tasteScore: 0,
@@ -257,7 +257,7 @@ export default {
         });
       });
       participants.push({
-        userID: this.user.docID,
+        userID: this.user.uid,
         isEliminated: false,
         isReady: false,
         avgScores: {
@@ -272,7 +272,7 @@ export default {
 
       db.collection("rooms")
         .add({
-          modID: this.user.docID,
+          modID: this.user.uid,
           beerList,
           participants,
           inProgress: false,
