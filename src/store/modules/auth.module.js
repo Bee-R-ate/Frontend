@@ -17,13 +17,13 @@ export default {
   },
 
   actions: {
-    editUser({ commit, state, dispatch }, userData) {
+    editUserPicture({ commit, state, dispatch }, file) {
       commit("loading", true);
-      if (userData.file != null) {
+      if (file != null) {
         const storageRef = fb
           .storage()
-          .ref(`avatars/${state.user.docID}/${userData.file.name}`);
-        const uploadTask = storageRef.put(userData.file);
+          .ref(`avatars/${state.user.docID}/${file.name}`);
+        const uploadTask = storageRef.put(file);
 
         uploadTask.on(
           "state_changed",
@@ -49,7 +49,19 @@ export default {
           }
         );
       }
+    },
 
+    editUserName({ commit, state }, name) {
+      db.collection("users")
+        .doc(state.user.docID)
+        .update({ name: name })
+        .then(() => {
+          commit("snackbar", "Pomyślnie edytowano nazwę!");
+          commit("loading", false);
+        });
+    },
+
+    editUserPassword({ commit }, userData) {
       if (userData.newPassword) {
         let user = firebase.auth().currentUser;
         const credentials = firebase.auth.EmailAuthProvider.credential(
@@ -66,22 +78,41 @@ export default {
             })
           )
           .catch((error) => {
-            if (error.code == "auth/wrong-password") {
+            if (error.code === "auth/wrong-password") {
               commit("snackbar", "Podano nieprawidłowe hasło!");
               commit("loading", false);
               return;
             }
           });
       }
-
-      db.collection("users")
-        .doc(state.user.docID)
-        .update({ Name: userData.name })
-        .then(() => {
-          commit("snackbar", "Pomyślnie edytowano nazwę!");
-          commit("loading", false);
-        });
     },
+
+    editUserEmail({ commit }, userData) {
+      if (userData.email) {
+        let user = firebase.auth().currentUser;
+        const credentials = firebase.auth.EmailAuthProvider.credential(
+          user.email,
+          userData.oldPassword
+        );
+
+        user
+          .reauthenticateWithCredential(credentials)
+          .then(() =>
+            user.updateEmail(userData.email).then(() => {
+              commit("snackbar", "Pomyślnie zmieniono adres e-mail!");
+              commit("loading", false);
+            })
+          )
+          .catch((error) => {
+            if (error.code === "auth/wrong-password") {
+              commit("snackbar", "Podano nieprawidłowe hasło!");
+              commit("loading", false);
+              return;
+            }
+          });
+      }
+    },
+
     autoLogin({ commit, dispatch }) {
       commit("loading", true);
       let user = JSON.parse(localStorage.getItem("user"));
