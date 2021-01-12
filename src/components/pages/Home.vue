@@ -72,7 +72,7 @@ export default {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  /*overflow-y: scroll;*/
+  /* overflow-y: scroll; */
 }
 .home-content {
   height: fit-content;
@@ -111,5 +111,9 @@ a span {
   50% {
     transform: translate(-100%);
   }
+}
+
+html {
+  overflow-y: auto !important;
 }
 </style>
