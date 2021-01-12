@@ -179,28 +179,5 @@ export default {
           commit("snackbar", translateErrors(err.code));
         });
     },
-
-    // eslint-disable-next-line no-unused-vars
-    // autoLogin({ commit, dispatch }) {
-    // commit("loading", true);
-    // let user = JSON.parse(localStorage.getItem("user"));
-
-    // if (user) {
-    //   db.collection("users")
-    //     .where("email", "==", user.email)
-    //     .limit(1)
-    //     .onSnapshot((querySnapshot) => {
-    //       querySnapshot.forEach((doc) => {
-    //         commit("user", { docID: doc.id, ...doc.data() });
-    //         commit("loading", false);
-    //         dispatch("friends");
-    //         dispatch("beers");
-    //       });
-    //     });
-    // } else {
-    //   commit("signOut");
-    //   commit("loading", false);
-    // }
-    // },
   },
 };

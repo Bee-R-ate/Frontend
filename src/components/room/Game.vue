@@ -6,9 +6,9 @@
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
-      <v-list v-if="room.modID == user.docID" class="py-0 my-5 friend-list">
+      <v-list v-if="room.modID == user.uid" class="py-0 my-5 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <div v-if="participant.userID != user.docID">
+          <div v-if="participant.userID != user.uid">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
@@ -172,7 +172,7 @@ export default {
     currentParticipant() {
       return this.room.participants
         ? this.room.participants.find(
-            (participant) => participant.userID == this.user.docID
+            (participant) => participant.userID == this.user.uid
           )
         : false;
     },
@@ -283,7 +283,7 @@ export default {
       participants[
         participants.indexOf(
           participants.find(
-            (participant) => participant.userID == this.user.docID
+            (participant) => participant.userID == this.user.uid
           )
         )
       ].isReady = true;
@@ -291,7 +291,7 @@ export default {
       let beerList = this.room.beerList;
       let userScores = beerList[this.room.currentBeer].userScores;
       let userScoreIndex = userScores.indexOf(
-        userScores.find((user) => user.userID == this.user.docID)
+        userScores.find((user) => user.userID == this.user.uid)
       );
       userScores[userScoreIndex].appearanceScore = this.appearance;
       userScores[userScoreIndex].sensationsScore = this.sensations;

@@ -14,7 +14,7 @@ export default {
       if (userData.file != null) {
         const storageRef = fb
           .storage()
-          .ref(`avatars/${state.user.docID}/${userData.file.name}`);
+          .ref(`avatars/${state.user.uid}/${userData.file.name}`);
         const uploadTask = storageRef.put(userData.file);
 
         uploadTask.on(
@@ -26,7 +26,7 @@ export default {
               .getDownloadURL()
               .then(function (downloadURL) {
                 db.collection("users")
-                  .doc(state.user.docID)
+                  .doc(state.user.uid)
                   .update({ imageURL: downloadURL })
                   .then(() => {
                     commit("snackbar", "Pomyślnie dodano zdjęcie!");
@@ -67,7 +67,7 @@ export default {
       }
 
       db.collection("users")
-        .doc(state.user.docID)
+        .doc(state.user.uid)
         .update({ Name: userData.name })
         .then(() => {
           commit("snackbar", "Pomyślnie edytowano nazwę!");
