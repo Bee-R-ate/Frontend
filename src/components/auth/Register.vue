@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center text-center auth home-container">
-    <v-form ref="form" class="login-form">
+    <v-form ref="form" class="login-form" @submit.prevent="register">
       <div class="back-container">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -47,7 +47,7 @@
         v-model="rodo2"
         label="Rodo2"
       ></v-checkbox>
-      <v-btn class="btn--black" @click="register">Wyślij</v-btn>
+      <v-btn type="submit">Wyślij</v-btn>
 
       <p class="mb-1 mt-5" style="font-size: 0.9rem">Masz już konto?</p>
       <v-btn link to="/logowanie" class="mb-5" color="secondary"

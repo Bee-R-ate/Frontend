@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center text-center auth home-container">
-    <v-form ref="form" class="login-form">
+    <v-form ref="form" class="login-form" @submit.prevent="login">
       <div class="back-container">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -22,7 +22,7 @@
         label="Hasło *"
       ></v-text-field>
 
-      <v-btn class="btn--black mt-5" @click="login">Zaloguj się</v-btn>
+      <v-btn class="mt-5" type="submit">Zaloguj się</v-btn>
 
       <p class="mb-1 mt-5" style="font-size: 0.9rem">Nie masz konta?</p>
       <v-btn link to="/rejestracja" class="mb-5" color="secondary"
@@ -55,12 +55,6 @@ export default {
 };
 </script>
 <style lang="scss" rel="stylesheet/scss">
-btn {
-  color: red;
-  &--black {
-    color: green !important;
-  }
-}
 .login-form {
   min-width: 75%;
   position: relative;
