@@ -2,7 +2,7 @@
   <div class="d-flex justify-center room-listing home-container">
     <div class="home-content position-relative">
       <div class="back-container">
-        <v-btn link to="/" icon>
+        <v-btn link to="/" icon class="mb-1">
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
@@ -83,8 +83,4 @@ export default {
 };
 </script>
 
-<style>
-.room-listing .back-container {
-  top: -20%;
-}
-</style>
+<style></style>
