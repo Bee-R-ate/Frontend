@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import store from "@/store/store";
 
 import Home from "@/pages/Home";
 import Register from "@/components/auth/Register";
@@ -12,24 +13,125 @@ import Results from "@/components/room/Results";
 import Friends from "@/components/friends/Friends";
 import Profile from "@/components/profile/Profile.vue";
 import BeerList from "@/components/beerlist/BeerList.vue";
+import ErrorPage from "@/pages/ErrorPage";
 
 Vue.use(VueRouter);
 
-const router = [
+const routes = [
   { path: "/", component: Home, name: "Home" },
-  { path: "/rejestracja", component: Register, name: "Register" },
-  { path: "/logowanie", component: Login, name: "Login" },
-  { path: "/tworzenie-pokoju", component: CreateRoom, name: "CreateRoom" },
-  { path: "/znajomi", component: Friends, name: "Friends" },
-  { path: "/profil", component: Profile, name: "Profile" },
-  { path: "/piwa", component: BeerList, name: "BeerList" },
-  { path: "/rozgrywka/:id", component: Game, name: "Game" },
-  { path: "/pokoj/:id", component: Room, name: "Room" },
-  { path: "/wyniki/:id", component: Results, name: "Results" },
-  { path: "/moje-pokoje", component: RoomListing, name: "RoomListing" },
+  {
+    path: "/rejestracja",
+    component: Register,
+    name: "Register",
+    meta: {
+      logged: false,
+    },
+  },
+  {
+    path: "/logowanie",
+    component: Login,
+    name: "Login",
+    meta: {
+      logged: false,
+    },
+  },
+  {
+    path: "/tworzenie-pokoju",
+    component: CreateRoom,
+    name: "CreateRoom",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/znajomi",
+    component: Friends,
+    name: "Friends",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/profil",
+    component: Profile,
+    name: "Profile",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/piwa",
+    component: BeerList,
+    name: "BeerList",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/rozgrywka/:id",
+    component: Game,
+    name: "Game",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/pokoj/:id",
+    component: Room,
+    name: "Room",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/wyniki/:id",
+    component: Results,
+    name: "Results",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/moje-pokoje",
+    component: RoomListing,
+    name: "RoomListing",
+    meta: {
+      logged: true,
+    },
+  },
+  {
+    path: "/404",
+    name: "ErrorPage",
+    component: ErrorPage,
+    props: {
+      code: "{404}",
+      msg: "Nie ma takiej stronki!",
+    },
+  },
+  {
+    path: "*",
+    redirect: "/404",
+  },
 ];
 
-export default new VueRouter({
-  routes: router,
+const router = new VueRouter({
+  scrollBehavior() {
+    return { x: 0, y: 0 };
+  },
+  routes: routes,
   mode: "history",
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.logged)) {
+    if (store.getters.user.uid) {
+      next("/");
+      return;
+    }
+    next();
+  } else {
+    next();
+  }
+});
+
+export default router;
