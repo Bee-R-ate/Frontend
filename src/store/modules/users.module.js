@@ -1,106 +1,147 @@
 import { fb, db } from "@/firebase/firebase";
 import firebase from "firebase/app";
+import translateErrors from "@/mixins/translateErrors";
 
 export default {
-  state: {
-    user: {},
-  },
-  mutations: {},
-  getters: {},
-
   actions: {
-    editUserPicture({ commit, state, dispatch }, file) {
+    editUserPicture({ commit, rootGetters }, file) {
       commit("loading", true);
-      if (file != null) {
-        const storageRef = fb
-          .storage()
-          .ref(`avatars/${state.user.docID}/${file.name}`);
+      const uid = rootGetters.user.uid;
+
+      if (file !== null) {
+        const storageRef = fb.storage().ref(`avatars/${uid}/avatar`);
         const uploadTask = storageRef.put(file);
 
         uploadTask.on(
           "state_changed",
           () => {},
-          (error) => console.log(error),
+          (err) => {
+            console.log(err.code);
+            commit("loading", false);
+            commit("snackbar", translateErrors(err.code));
+          },
           () => {
             uploadTask.snapshot.ref
               .getDownloadURL()
               .then(function (downloadURL) {
+                commit("changeUserAvatar", downloadURL);
+
                 db.collection("users")
-                  .doc(state.user.docID)
+                  .doc(uid)
                   .update({ imageURL: downloadURL })
                   .then(() => {
                     commit("snackbar", "Pomyślnie dodano zdjęcie!");
                     commit("loading", false);
-                    dispatch("autoLogin");
                   })
-                  .catch(() => {
-                    commit("snackbar", "Błąd serwera, przepraszamy...");
+                  .catch((err) => {
+                    console.log(err.code);
                     commit("loading", false);
+                    commit("snackbar", translateErrors(err.code));
                   });
+              })
+              .catch((err) => {
+                console.log(err.code);
+                commit("loading", false);
+                commit("snackbar", translateErrors(err.code));
               });
           }
         );
       }
     },
 
-    editUserName({ commit, state }, name) {
+    editUserName({ commit, rootGetters }, name) {
+      commit("loading", true);
+
+      const uid = rootGetters.user.uid;
+
       db.collection("users")
-        .doc(state.user.docID)
+        .doc(uid)
         .update({ name: name })
         .then(() => {
-          commit("snackbar", "Pomyślnie edytowano nazwę!");
+          commit("changeUserName", name);
           commit("loading", false);
+          commit("snackbar", "Pomyślnie edytowano nazwę!");
+        })
+        .catch((err) => {
+          commit("snackbar", "Wystąpił błąd!");
+          commit("loading", false);
+          console.log(err);
         });
     },
 
-    editUserPassword({ commit }, userData) {
-      if (userData.newPassword) {
+    editUserEmail({ commit }, { password, email }) {
+      commit("loading", true);
+
+      if (email) {
         let user = firebase.auth().currentUser;
+
+        const userRef = db.collection("users").doc(user.uid);
+
         const credentials = firebase.auth.EmailAuthProvider.credential(
           user.email,
-          userData.oldPassword
+          password
         );
 
         user
           .reauthenticateWithCredential(credentials)
           .then(() =>
-            user.updatePassword(userData.newPassword).then(() => {
-              commit("snackbar", "Pomyślnie zmieniono hasło!");
-              commit("loading", false);
-            })
+            user
+              .updateEmail(email)
+              .then(() => {
+                userRef.update({ email: email }).then(() => {
+                  console.log(user.email);
+                  commit("changeUserEmail", email);
+                  commit("snackbar", "Pomyślnie zmieniono adres e-mail!");
+                  commit("loading", false);
+                });
+              })
+              .catch((err) => {
+                console.log(err.code);
+                commit("loading", false);
+                commit("snackbar", translateErrors(err.code));
+              })
+              .catch((err) => {
+                console.log(err.code);
+                commit("loading", false);
+                commit("snackbar", translateErrors(err.code));
+              })
           )
-          .catch((error) => {
-            if (error.code === "auth/wrong-password") {
-              commit("snackbar", "Podano nieprawidłowe hasło!");
-              commit("loading", false);
-              return;
-            }
+          .catch((err) => {
+            console.log(err.code);
+            commit("loading", false);
+            commit("snackbar", translateErrors(err.code));
           });
       }
     },
 
-    editUserEmail({ commit }, userData) {
-      if (userData.email) {
+    editUserPassword({ commit }, { newPassword, oldPassword }) {
+      if (newPassword) {
         let user = firebase.auth().currentUser;
+
         const credentials = firebase.auth.EmailAuthProvider.credential(
           user.email,
-          userData.oldPassword
+          oldPassword
         );
 
         user
           .reauthenticateWithCredential(credentials)
           .then(() =>
-            user.updateEmail(userData.email).then(() => {
-              commit("snackbar", "Pomyślnie zmieniono adres e-mail!");
-              commit("loading", false);
-            })
+            user
+              .updatePassword(newPassword)
+              .then(() => {
+                commit("snackbar", "Pomyślnie zmieniono hasło!");
+                commit("loading", false);
+              })
+              .catch((err) => {
+                console.log(err.code);
+                commit("loading", false);
+                commit("snackbar", translateErrors(err.code));
+              })
           )
-          .catch((error) => {
-            if (error.code === "auth/wrong-password") {
-              commit("snackbar", "Podano nieprawidłowe hasło!");
-              commit("loading", false);
-              return;
-            }
+          .catch((err) => {
+            console.log(err.code);
+            commit("loading", false);
+            commit("snackbar", translateErrors(err.code));
           });
       }
     },

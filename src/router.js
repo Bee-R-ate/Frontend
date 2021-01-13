@@ -137,7 +137,7 @@ router.beforeEach((to, from, next) => {
       next();
       return;
     }
-    next("/403");
+    next("/");
   } else {
     next();
   }

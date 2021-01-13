@@ -11,79 +11,124 @@
       <img class="profile-photo" :src="activePhoto" alt="avatar" />
 
       <h2 class="home-title mb-3">Edytuj profil</h2>
-      <v-form ref="form">
-        <v-row>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-file-input
-              show-size
-              accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif"
-              :rules="[rules.fileSize]"
-              color="black"
-              class="mt-0"
-              v-model="file"
-              label="Zdjęcie"
-            ></v-file-input>
-            <v-btn @click="editProfilePicture" class="mb-3" color="secondary"
-              >Zmień zdjęcie</v-btn
-            >
-          </v-col>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-text-field
-              color="black"
-              class="mt-0"
-              v-model="user.name"
-              label="Imię i nazwisko"
-            ></v-text-field>
-            <v-btn @click="editProfileName" class="mb-3" color="secondary"
-              >Zmień nazwę</v-btn
-            >
-          </v-col>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-text-field
-              color="black"
-              class="mt-0"
-              v-model="user.email"
-              label="Adres E-mail"
-            ></v-text-field>
-            <v-btn @click="editProfileEmail" class="mb-3" color="secondary"
-              >Zmień adres e-mail</v-btn
-            >
-          </v-col>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-text-field
-              color="black"
-              type="password"
-              :rules="[passwordOperation]"
-              class="mt-0"
-              v-model="oldPassword"
-              label="Stare hasło"
-            ></v-text-field>
-          </v-col>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-text-field
-              color="black"
-              type="password"
-              :rules="[newPasswordOperation, rules.passwordLength]"
-              class="mt-0"
-              v-model="newPassword"
-              label="Nowe hasło"
-            ></v-text-field>
-          </v-col>
-          <v-col sm="6" cols="12" class="pa-0 pa-sm-1">
-            <v-text-field
-              color="black"
-              type="password"
-              :rules="[checkConfirmPassword]"
-              class="mt-0"
-              v-model="confirmPassword"
-              label="Powtórz Nowe hasło"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-btn @click="editProfilePassword" class="mb-3" color="secondary"
-          >Zmień hasło</v-btn
-        >
-      </v-form>
+      <v-container>
+        <v-form ref="avatarForm" @submit.prevent.prevent="editProfilePicture">
+          <v-row>
+            <v-col cols="12" class="py-2">
+              <v-file-input
+                show-size
+                accept="image/png, image/jpeg, image/bmp, image/gif, image/svg, image/jfif"
+                :rules="[rules.fileSize, rules.required]"
+                color="black"
+                class="mt-0"
+                v-model="file"
+                label="Zdjęcie"
+              ></v-file-input>
+              <v-btn type="submit" class="mb-3" color="secondary"
+                >Zmień zdjęcie</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-form>
+
+        <v-form ref="nameForm" @submit.prevent="editProfileEmail">
+          <v-row>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                class="mt-0"
+                v-model="name"
+                label="Imię i nazwisko"
+              ></v-text-field>
+              <v-btn
+                type="submit"
+                @click="editProfileName"
+                class="mb-3 mt-2"
+                color="secondary"
+                >Zmień nazwę</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-form>
+
+        <v-form ref="emailForm" @submit.prevent="editProfileEmail">
+          <v-row>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                class="mt-0"
+                :rules="[rules.required, rules.email]"
+                v-model="email"
+                label="Adres E-mail"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                type="password"
+                :rules="[
+                  emailPasswordOperation,
+                  rules.required,
+                  rules.passwordLength,
+                ]"
+                class="mt-0"
+                v-model="emailPassword"
+                label="Hasło"
+              ></v-text-field>
+              <v-btn type="submit" class="mb-3 mt-2" color="secondary"
+                >Zmień adres e-mail</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-form>
+
+        <v-form ref="passwordForm" @submit.prevent="editProfilePassword">
+          <v-row>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                type="password"
+                :rules="[
+                  passwordOperation,
+                  rules.required,
+                  rules.passwordLength,
+                ]"
+                class="mt-0"
+                v-model="oldPassword"
+                label="Stare hasło"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                type="password"
+                :rules="[
+                  newPasswordOperation,
+                  rules.passwordLength,
+                  rules.required,
+                ]"
+                class="mt-0"
+                v-model="newPassword"
+                label="Nowe hasło"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" class="py-2">
+              <v-text-field
+                color="black"
+                type="password"
+                :rules="[checkConfirmPassword, rules.required]"
+                class="mt-0"
+                v-model="confirmPassword"
+                label="Powtórz Nowe hasło"
+              ></v-text-field>
+
+              <v-btn type="submit" class="mb-3 mt-2" color="secondary"
+                >Zmień hasło</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-container>
     </div>
   </div>
 </template>
@@ -94,6 +139,9 @@ import rules from "@/helpers/validation/rules";
 export default {
   data() {
     return {
+      name: "",
+      email: "",
+      emailPassword: "",
       oldPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -101,6 +149,62 @@ export default {
       rules,
     };
   },
+
+  created() {
+    this.name = this.user.name;
+    this.email = this.user.email;
+  },
+
+  methods: {
+    editProfilePicture() {
+      if (!this.$refs.avatarForm.validate() || this.file === null) return;
+
+      if (this.file) {
+        this.$store.dispatch("editUserPicture", this.file);
+      }
+    },
+
+    editProfileName() {
+      if (!this.$refs.nameForm.validate()) return;
+
+      this.$store.dispatch("editUserName", this.name);
+    },
+
+    editProfileEmail() {
+      if (!this.$refs.emailForm.validate()) return;
+
+      this.$store.dispatch("editUserEmail", {
+        password: this.emailPassword,
+        email: this.email,
+      });
+    },
+
+    editProfilePassword() {
+      if (!this.$refs.passwordForm.validate()) return;
+
+      this.$store.dispatch("editUserPassword", {
+        newPassword: this.newPassword,
+        oldPassword: this.oldPassword,
+      });
+    },
+
+    emailPasswordOperation(v) {
+      return this.emailPassword ? !!v || "Proszę podać hasło!" : true;
+    },
+
+    passwordOperation(v) {
+      return this.newPassword ? !!v || "Proszę podać stare hasło!" : true;
+    },
+
+    checkConfirmPassword(v) {
+      return v === this.newPassword || "Hasła muszą być identyczne!";
+    },
+
+    newPasswordOperation(v) {
+      return this.oldPassword ? !!v || "Proszę podać nowe hasło!" : true;
+    },
+  },
+
   computed: {
     user() {
       return this.$store.getters.user;
@@ -109,49 +213,6 @@ export default {
       return this.file == null
         ? this.user.imageURL
         : URL.createObjectURL(this.file);
-    },
-  },
-  methods: {
-    editProfilePicture() {
-      if (!this.$refs.form.validate()) return;
-
-      if (this.file !== null) {
-        this.$store.dispatch("editUserPicture", this.file);
-      }
-    },
-
-    editProfileName() {
-      if (!this.$refs.form.validate()) return;
-
-      this.$store.dispatch("editUserName", this.user.name);
-    },
-
-    editProfilePassword() {
-      if (!this.$refs.form.validate()) return;
-
-      this.$store.dispatch("editUserPassword", {
-        oldPassword: this.oldPassword,
-        newPassword: this.newPassword,
-      });
-    },
-
-    editProfileEmail() {
-      if (!this.$refs.form.validate()) return;
-
-      this.$store.dispatch("editUserEmail", {
-        oldPassword: this.oldPassword,
-        email: this.user.email,
-      });
-    },
-
-    passwordOperation(v) {
-      return this.newPassword ? !!v || "Proszę podać stare hasło!" : true;
-    },
-    checkConfirmPassword(v) {
-      return v == this.newPassword || "Hasła muszą być identyczne!";
-    },
-    newPasswordOperation(v) {
-      return this.oldPassword ? !!v || "Proszę podać nowe hasło!" : true;
     },
   },
 };
