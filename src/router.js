@@ -109,6 +109,15 @@ const routes = [
     },
   },
   {
+    path: "/403",
+    name: "ErrorPage",
+    component: ErrorPage,
+    props: {
+      code: "{403}",
+      msg: "STOP RIGHT THERE! Nie masz uprawnień do otwarcia tej strony.",
+    },
+  },
+  {
     path: "*",
     redirect: "/404",
   },
@@ -125,10 +134,10 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.logged)) {
     if (store.getters.user.uid) {
-      next("/");
+      next();
       return;
     }
-    next();
+    next("/403");
   } else {
     next();
   }
