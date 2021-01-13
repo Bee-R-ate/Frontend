@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex justify-center room-listing home-container">
-    <div class="home-content position-relative">
+    <div class="home-content">
       <div class="back-container">
-        <v-btn link to="/" icon class="mb-1">
+        <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
