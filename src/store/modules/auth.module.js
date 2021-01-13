@@ -151,7 +151,9 @@ export default {
           commit("authSuccess");
           commit("loading", false);
           commit("snackbar", "Jesteś zalogowany!");
-          if (router.currentRoute.path !== "/") {
+
+          const routeName = router.currentRoute.name;
+          if (routeName === "Login" || routeName === "Register") {
             router.push("/");
           }
         })
@@ -172,11 +174,7 @@ export default {
 
           const path = router.currentRoute.path;
 
-          if (
-            path !== "/" &&
-            path !== "/logowanie" &&
-            path !== "/rejestracja"
-          ) {
+          if (path !== "/") {
             router.push("/");
           }
         })
