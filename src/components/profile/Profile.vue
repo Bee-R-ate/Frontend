@@ -31,7 +31,7 @@
           </v-row>
         </v-form>
 
-        <v-form ref="nameForm" @submit.prevent="editProfileEmail">
+        <v-form ref="nameForm" @submit.prevent="editProfileName">
           <v-row>
             <v-col cols="12" class="py-2">
               <v-text-field
@@ -40,11 +40,7 @@
                 v-model="name"
                 label="Imię i nazwisko"
               ></v-text-field>
-              <v-btn
-                type="submit"
-                @click="editProfileName"
-                class="mb-3 mt-2"
-                color="secondary"
+              <v-btn type="submit" class="mb-3 mt-2" color="secondary"
                 >Zmień nazwę</v-btn
               >
             </v-col>
