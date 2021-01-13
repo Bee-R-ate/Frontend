@@ -15,7 +15,7 @@
           @click="editName = true"
           large
           icon
-          v-if="room.modID == user.docID"
+          v-if="room.modID == user.uid"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -31,7 +31,7 @@
         </v-btn>
       </div>
 
-      <div v-if="room.modID == user.docID && room.participants">
+      <div v-if="room.modID == user.uid && room.participants">
         <h2 class="home-title">Lista piw</h2>
         <p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
         <v-text-field
@@ -158,7 +158,7 @@
                   @click="kickParticipant(participant, i)"
                   class="ml-2"
                   v-if="
-                    room.modID == user.docID && participant.userID != user.docID
+                    room.modID == user.uid && participant.userID != user.uid
                   "
                   icon
                 >
@@ -180,7 +180,7 @@
       >
 
       <v-btn
-        v-if="room.modID == user.docID"
+        v-if="room.modID == user.uid"
         x-large
         color="secondary"
         @click="start"
@@ -218,7 +218,7 @@ export default {
         if (
           this.room.participants &&
           !this.room.participants.find(
-            (participant) => participant.userID == this.user.docID
+            (participant) => participant.userID == this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
@@ -243,7 +243,7 @@ export default {
     mod() {
       return this.room.participants == undefined
         ? {}
-        : this.room.participants.find((user) => user.userID == this.user.docID);
+        : this.room.participants.find((user) => user.userID == this.user.uid);
     },
     friends() {
       return this.$store.getters.friends == undefined
@@ -322,7 +322,7 @@ export default {
       participants[
         participants.indexOf(
           participants.find(
-            (participant) => participant.userID == this.user.docID
+            (participant) => participant.userID == this.user.uid
           )
         )
       ].isReady = true;

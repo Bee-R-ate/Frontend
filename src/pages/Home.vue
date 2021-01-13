@@ -10,7 +10,7 @@
       />
       <h2 class="home-title">Bee-R-ate</h2>
       <p class="home-subtitle">Rozpocznij swoją piwną debatę!</p>
-      <div v-if="!$store.getters.user.docID">
+      <div v-if="!$store.getters.user.uid">
         <v-btn class="mb-5" link to="/logowanie" color="secondary"
           >Zaloguj się!</v-btn
         >
@@ -38,24 +38,10 @@
 </template>
 
 <script>
-import { fb } from "@/firebase/firebase";
-
 export default {
   methods: {
     signOut() {
-      fb.auth()
-        .signOut()
-        .then(() => {
-          localStorage.removeItem("user");
-          this.$store.commit("signOut");
-          this.$store.commit("snackbar", "Wróć do nas jeszcze! Chlip chlip :c");
-        })
-        .catch(() => {
-          this.$store.commit(
-            "snackbar",
-            "Coś poszło nie tak... Wygląda że zostajesz tu na wieczność :)"
-          );
-        });
+      this.$store.dispatch("signOut");
     },
   },
 };
@@ -72,7 +58,7 @@ export default {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  /*overflow-y: scroll;*/
+  /* overflow-y: scroll; */
 }
 .home-content {
   height: fit-content;
@@ -111,5 +97,9 @@ a span {
   50% {
     transform: translate(-100%);
   }
+}
+
+html {
+  overflow-y: auto !important;
 }
 </style>

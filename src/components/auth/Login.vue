@@ -33,7 +33,6 @@
 </template>
 <script>
 import rules from "@/helpers/validation/rules";
-import { fb } from "@/firebase/firebase";
 
 export default {
   data() {
@@ -46,26 +45,11 @@ export default {
   methods: {
     login() {
       if (!this.$refs.form.validate()) return;
-      this.$store.commit("loading", true);
-      fb.auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then((user) => {
-          localStorage.setItem("user", JSON.stringify(user.user));
-          this.$store.commit("snackbar", "Pomyślnie zalogowano!");
-          this.$store.commit("loading", false);
-          this.$router.push("/");
-          this.$store.dispatch("autoLogin");
-        })
-        .catch((error) => {
-          this.$store.commit("loading", false);
-          if (error.code == "auth/wrong-password")
-            this.$store.commit("snackbar", "Nieprawidłowe hasło!");
-          if (error.code == "auth/user-not-found")
-            this.$store.commit(
-              "snackbar",
-              "Taki użytkownik nie istnieje! Zarejestruj się!"
-            );
-        });
+
+      this.$store.dispatch("login", {
+        password: this.password,
+        email: this.email,
+      });
     },
   },
 };

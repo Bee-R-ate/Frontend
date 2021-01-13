@@ -176,7 +176,7 @@ export default {
       this.$store.commit("loading", true);
       const storageRef = fb
         .storage()
-        .ref(`beers/${this.user.docID}/${this.file.name}`);
+        .ref(`beers/${this.user.uid}/${this.file.name}`);
       const uploadTask = storageRef.put(this.file);
 
       uploadTask.on(
@@ -218,7 +218,7 @@ export default {
       if (this.editFile != null) {
         const storageRef = fb
           .storage()
-          .ref(`beers/${this.user.docID}/${this.editFile.name}`);
+          .ref(`beers/${this.user.uid}/${this.editFile.name}`);
         const uploadTask = storageRef.put(this.editFile);
 
         uploadTask.on(

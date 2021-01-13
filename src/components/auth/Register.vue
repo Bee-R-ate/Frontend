@@ -58,7 +58,6 @@
 </template>
 <script>
 import rules from "@/helpers/validation/rules";
-import { fb, db } from "@/firebase/firebase";
 
 export default {
   data() {
@@ -78,38 +77,12 @@ export default {
     },
     register() {
       if (!this.$refs.form.validate()) return;
-      this.$store.commit("loading", true);
-      fb.auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
-        .then((result) => {
-          localStorage.setItem("user", JSON.stringify(result.user));
-          this.$store.commit("loading", false);
-          this.$store.commit("snackbar", "Pomyślnie zarejestrowano!");
-          this.$router.push("/");
-          db.collection("users")
-            .add({
-              email: this.email,
-              name: this.name,
-              imageURL:
-                "https://avatars0.githubusercontent.com/u/9064066?v=4&s=460",
-              ID: result.user.uid,
-              friends: [],
-              myRooms: [],
-            })
-            .then(() => {
-              this.$store.dispatch("autoLogin");
-            });
-          return result.user.updateProfile({
-            displayName: this.name,
-          });
-        })
-        .catch((error) => {
-          this.$store.commit("loading", false);
-          if (error.code == "auth/email-already-in-use")
-            this.$store.commit("snackbar", "Taki email już istnieje!");
-          if (error.code == "auth/internal-error")
-            this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-        });
+
+      this.$store.dispatch("register", {
+        password: this.password,
+        email: this.email,
+        name: this.name,
+      });
     },
   },
 };

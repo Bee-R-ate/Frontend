@@ -14,7 +14,7 @@ const opts = {
       light: {
         primary: "#EA611A",
         secondary: "#fff",
-        error: "black",
+        error: "#ae0000",
       },
     },
   },

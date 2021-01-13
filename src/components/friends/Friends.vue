@@ -92,7 +92,7 @@ export default {
             if (!this.user.friends.includes(doc.id)) {
               this.user.friends.push(doc.id);
               db.collection("users")
-                .doc(this.user.docID)
+                .doc(this.user.uid)
                 .update({ friends: this.user.friends })
                 .then(() => {
                   this.$store.commit("snackbar", "To teraz piwko!");
@@ -100,7 +100,7 @@ export default {
                   this.search = "";
                 });
               let friends = doc.data().friends;
-              friends.push(this.user.docID);
+              friends.push(this.user.uid);
               db.collection("users").doc(doc.id).update({ friends: friends });
               this.$store.dispatch("friends");
             } else {
@@ -120,7 +120,7 @@ export default {
         .doc(friend.id)
         .onSnapshot((doc) => {
           let friendFriends = doc.data().friends;
-          friendFriends.splice(friendFriends.indexOf(this.user.docID), 1);
+          friendFriends.splice(friendFriends.indexOf(this.user.uid), 1);
           db.collection("users")
             .doc(friend.id)
             .update({ friends: friendFriends });
@@ -131,7 +131,7 @@ export default {
 
       await db
         .collection("users")
-        .doc(this.user.docID)
+        .doc(this.user.uid)
         .update({ friends: myFriends })
         .then(() => {
           this.$store.commit("snackbar", "Przykro, że się nie dogadaliście...");
