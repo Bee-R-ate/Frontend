@@ -87,17 +87,4 @@ export default {
   },
 };
 </script>
-<style lang="scss" rel="stylesheet/scss">
-btn {
-  color: red;
-  &--black {
-    color: green !important;
-  }
-}
-
-.back-container {
-  position: absolute;
-  top: -6%;
-  left: 0;
-}
-</style>
+<style lang="scss" rel="stylesheet/scss"></style>

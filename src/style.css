@@ -2,4 +2,12 @@ html {
   overflow-y: auto !important;
 }
 
+.back-container {
+  padding: 0;
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 0 -5px;
+  width: 100%;
+}
+
 /*# sourceMappingURL=style.css.map */

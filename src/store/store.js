@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { vuexfireMutations } from "vuexfire";
 
 import Auth from "./modules/auth.module";
 import Snackbar from "./modules/snackbar.module";
@@ -20,5 +21,9 @@ export default new Vuex.Store({
     Beers,
     Room,
     Users,
+  },
+
+  mutations: {
+    ...vuexfireMutations,
   },
 });

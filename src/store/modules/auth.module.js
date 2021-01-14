@@ -1,6 +1,7 @@
 import { fb, db } from "@/firebase/firebase";
 import router from "@/router";
 import translateErrors from "@/mixins/translateErrors";
+import { firestoreAction } from "vuexfire";
 
 export default {
   state: {
@@ -58,7 +59,7 @@ export default {
         .signInWithEmailAndPassword(email, password)
         .then(async (userCred) => {
           console.log(userCred.user.uid);
-          await dispatch("fetchUserData", userCred.user.uid);
+          await dispatch("bindUserData", userCred.user.uid);
         })
         .catch((err) => {
           dispatch("signOut");
@@ -102,7 +103,7 @@ export default {
         .doc(uid)
         .set(user)
         .then(async () => {
-          await dispatch("fetchUserData", uid);
+          await dispatch("bindUserData", uid);
         })
         .catch((err) => {
           console.log(err);
@@ -111,42 +112,45 @@ export default {
         });
     },
 
-    fetchUserData({ commit, dispatch }, uid) {
-      console.log("fetch user data");
-      const userRef = db.collection("users").doc(uid);
+    bindUserData: firestoreAction(
+      ({ bindFirestoreRef, dispatch, commit }, uid) => {
+        const userRef = db.collection("users").doc(uid);
 
-      return userRef
-        .get()
-        .then(async (userDoc) => {
-          if (!userDoc.exists) {
+        const serialize = (doc) => {
+          const data = doc.data();
+
+          data.uid = uid;
+
+          return data;
+        };
+
+        return bindFirestoreRef("user", userRef, { serialize })
+          .then(async (userData) => {
+            console.log(userData);
+            if (!userData) {
+              dispatch("signOut");
+              commit("snackbar", translateErrors("auth/user-not-found"));
+              return;
+            }
+            await dispatch("friends");
+            await dispatch("beers");
+
+            commit("authSuccess");
+            commit("loading", false);
+            commit("snackbar", "Jesteś zalogowany!");
+
+            const routeName = router.currentRoute.name;
+            if (routeName === "Login" || routeName === "Register") {
+              router.push("/");
+            }
+          })
+          .catch((err) => {
             dispatch("signOut");
-            commit("snackbar", translateErrors("auth/user-not-found"));
-            return;
-          }
-          const user = userDoc.data();
-          user.uid = uid;
-
-          console.log(user);
-          commit("setUser", user);
-
-          await dispatch("friends");
-          await dispatch("beers");
-
-          commit("authSuccess");
-          commit("loading", false);
-          commit("snackbar", "Jesteś zalogowany!");
-
-          const routeName = router.currentRoute.name;
-          if (routeName === "Login" || routeName === "Register") {
-            router.push("/");
-          }
-        })
-        .catch((err) => {
-          dispatch("signOut");
-          console.log(err);
-          commit("snackbar", translateErrors(err.code));
-        });
-    },
+            console.log(err);
+            commit("snackbar", translateErrors(err.code));
+          });
+      }
+    ),
 
     signOut({ commit }) {
       fb.auth()

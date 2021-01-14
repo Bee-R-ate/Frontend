@@ -1,9 +1,7 @@
 <template>
   <div class="d-flex justify-center home-container profile">
-    <div
-      class="home-content justify-center align-center text-center position-relative"
-    >
-      <div class="back-container">
+    <div class="home-content justify-center align-center text-center">
+      <div class="back-container ma-0">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
