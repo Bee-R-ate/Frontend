@@ -21,7 +21,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       console.log(user.uid);
       console.log("auth state fetching user data");
-      await store.dispatch("fetchUserData", user.uid);
+      await store.dispatch("bindUserData", user.uid);
     } else {
       await store.dispatch("signOut");
     }

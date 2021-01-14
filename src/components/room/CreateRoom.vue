@@ -278,8 +278,10 @@ export default {
           inProgress: false,
           name: this.name,
           currentBeer: 0,
+          createdAt: null,
         })
         .then((doc) => {
+          doc.update({});
           this.$store.commit("loading", false);
           this.$store.commit("snackbar", "Pomyślnie utworzono pokój!");
           this.saveMyRooms(doc.id);

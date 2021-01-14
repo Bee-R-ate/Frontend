@@ -9,20 +9,18 @@
       <h2 class="home-title">Moje pokoje</h2>
 
       <v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
-        <div v-for="(room, i) in rooms" :key="i">
-          <router-link
-            :to="roomsData[i] ? setRoomLink(room, i) : '/moje-pokoje'"
-          >
+        <div v-for="(room, i) in myRooms" :key="i">
+          <router-link :to="myRooms[i] ? setRoomLink(room, i) : '/moje-pokoje'">
             <v-list-item class="px-0">
               <v-list-item-content class="pa-5">
                 <div class="">
                   <v-list-item-title
-                    v-html="roomsData[i] ? roomsData[i].name : ''"
+                    v-html="myRooms[i] ? myRooms[i].name : ''"
                   ></v-list-item-title>
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i != rooms.length - 1"></v-divider>
+            <v-divider v-if="i !== rooms.length - 1"></v-divider>
           </router-link>
         </div>
       </v-list>
@@ -36,14 +34,7 @@
 </template>
 
 <script>
-import { db } from "@/firebase/firebase";
-
 export default {
-  data() {
-    return {
-      roomsData: [],
-    };
-  },
   watch: {
     rooms() {
       this.getRoomsData();
@@ -51,9 +42,10 @@ export default {
   },
   computed: {
     rooms() {
-      return this.$store.getters.user.myRooms == undefined
-        ? []
-        : this.$store.getters.user.myRooms;
+      return this.$store.getters.user.myRooms;
+    },
+    myRooms() {
+      return this.$store.getters.myRooms;
     },
     user() {
       return this.$store.getters.user;
@@ -62,19 +54,38 @@ export default {
   methods: {
     setRoomLink(room, i) {
       let segment = "pokoj";
-      if (this.roomsData[i].inProgress) segment = "rozgrywka";
-      if (!this.roomsData[i].inProgress && this.roomsData[i].currentBeer != 0)
+      if (this.myRooms[i].inProgress) segment = "rozgrywka";
+      if (!this.myRooms[i].inProgress && this.myRooms[i].currentBeer != 0)
         segment = "wyniki";
       return `/${segment}/${room}`;
     },
+
     getRoomsData() {
-      if (this.rooms.length > 0) {
-        this.rooms.forEach(async (room) => {
-          let promise = await db.collection("rooms").doc(room).get();
-          let data = { ...promise.data(), id: promise.id };
-          if (this.roomsData.indexOf(data) == -1) this.roomsData.push(data);
-        });
-      }
+      this.$store.dispatch("getRoomsData");
+
+      // console.log("getRoomsData");
+      //
+      // if (this.rooms.length > 0) {
+      //   let rooms = [];
+      //   let promises = [];
+      //
+      //   this.rooms.forEach(async (room) => {
+      //     let promise = db
+      //       .collection("rooms")
+      //       .doc(room)
+      //       .get()
+      //       .then((doc) => {
+      //         return doc.data();
+      //       });
+      //     promises.push(promise);
+      //   });
+      //
+      //   Promise.all(promises).then((beers) => {
+      //     rooms.push(...beers);
+      //   });
+      //
+      //   this.roomsData = rooms;
+      // }
     },
   },
   created() {
