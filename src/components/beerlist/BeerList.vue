@@ -127,7 +127,6 @@
 </template>
 
 <script>
-import { db, fb } from "@/firebase/firebase";
 import rules from "@/helpers/validation/rules";
 
 export default {
@@ -165,96 +164,23 @@ export default {
     },
     addBeer() {
       if (this.file == null || !this.$refs.form.validate()) return;
-
-      if (this.beers.find((beer) => beer.name == this.name)) {
-        this.$store.commit(
-          "snackbar",
-          "Wiem, że bardzo je lubisz, ale takie piwo jest już na liście..."
-        );
-        return;
-      }
-      this.$store.commit("loading", true);
-      const storageRef = fb
-        .storage()
-        .ref(`beers/${this.user.uid}/${this.file.name}`);
-      const uploadTask = storageRef.put(this.file);
-
-      uploadTask.on(
-        "state_changed",
-        () => {},
-        (error) => console.log(error),
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            db.collection("beers")
-              .add({
-                name: this.name,
-                photoUrl: downloadURL,
-                avgAppearanceScore: 0,
-                avgSmellScore: 0,
-                avgTasteScore: 0,
-                avgSensationsScore: 0,
-                avgSubjectiveScore: 0,
-                avgScore: 0,
-              })
-              .then(() => {
-                this.$store.commit("snackbar", "Na zdrówko!");
-                this.$store.commit("loading", false);
-                this.$store.dispatch("beers");
-                this.resetForm();
-              })
-              .catch(() => {
-                this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-                this.$store.commit("loading", false);
-              });
-          });
-        }
-      );
+      this.$store
+        .dispatch("addBeer", { name: this.name, file: this.file })
+        .then(() => {
+          this.resetForm();
+        });
     },
     editBeer(beer) {
       if (!this.$refs.form.validate()) return;
-      this.$store.commit("loading", true);
-      if (this.editFile != null) {
-        const storageRef = fb
-          .storage()
-          .ref(`beers/${this.user.uid}/${this.editFile.name}`);
-        const uploadTask = storageRef.put(this.editFile);
 
-        uploadTask.on(
-          "state_changed",
-          () => {},
-          (error) => console.log(error),
-          () => {
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              db.collection("beers")
-                .doc(beer.id)
-                .update({ photoUrl: downloadURL })
-                .then(() => {
-                  this.$store.commit("snackbar", "Edytowano zdjęcię!");
-                  this.$store.commit("loading", false);
-                  this.$store.dispatch("beers");
-                  this.resetForm();
-                })
-                .catch(() => {
-                  this.$store.commit(
-                    "snackbar",
-                    "Błąd serwera, przepraszamy..."
-                  );
-                  this.$store.commit("loading", false);
-                });
-            });
-          }
-        );
-      }
-
-      db.collection("beers")
-        .doc(beer.id)
-        .update({ name: beer.name })
+      this.$store
+        .dispatch("editBeer", {
+          beerID: beer.id,
+          name: beer.name,
+          editFile: this.editFile,
+        })
         .then(() => {
-          this.$store.commit("snackbar", "Edytowano nazwę!");
-          this.$store.commit("loading", false);
-          this.$store.dispatch("beers");
-          this.editFile = null;
-          this.editFlag = undefined;
+          this.resetForm();
         });
     },
   },
