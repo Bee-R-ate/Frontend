@@ -7,20 +7,24 @@
         </v-btn>
       </div>
       <h2 class="home-title mt-2">Moi znajomi</h2>
-      <v-text-field
-        class="pa-3 pb-1 mt-0 friends-search"
-        color="black"
-        label="Wpisz email"
-        prepend-icon="mdi-magnify"
-        v-model="search"
-      ></v-text-field>
-      <v-btn
-        style="width: 100%"
-        @click="addFriend"
-        class="mt-2 mb-3"
-        color="secondary"
-        >Dodaj znajomych!
-      </v-btn>
+      <v-form v-model="valid" ref="form">
+        <v-text-field
+          class="pa-3 pb-1 mt-0 friends-search"
+          color="black"
+          label="Wpisz email"
+          prepend-icon="mdi-magnify"
+          v-model="search"
+          :rules="[rules.email]"
+        ></v-text-field>
+        <v-btn
+          style="width: 100%"
+          @click="addFriend"
+          class="mt-2 mb-3"
+          color="secondary"
+          :disabled="!valid"
+          >Dodaj znajomych!
+        </v-btn>
+      </v-form>
 
       <v-list v-if="friends.length > 0" class="py-0 friend-list">
         <div v-for="(friend, i) in friends" :key="i">
@@ -53,12 +57,15 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import rules from "@/helpers/validation/rules";
 
 export default {
   data() {
     return {
       search: "",
       select: "",
+      valid: true,
+      rules,
     };
   },
   computed: {
@@ -88,6 +95,10 @@ export default {
         .limit(1)
         .get()
         .then((querySnapshot) => {
+          if (querySnapshot.docs.length == 0) {
+            this.$store.commit("snackbar", "Nie znaleziono użytkownika!");
+            this.$store.commit("loading", false);
+          }
           querySnapshot.forEach((doc) => {
             if (!this.user.friends.includes(doc.id)) {
               this.user.friends.push(doc.id);
