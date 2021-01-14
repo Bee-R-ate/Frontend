@@ -56,7 +56,6 @@
 </template>
 
 <script>
-import { db } from "@/firebase/firebase";
 import rules from "@/helpers/validation/rules";
 
 export default {
@@ -79,75 +78,10 @@ export default {
   methods: {
     itemText: (item) => item.Email,
     addFriend() {
-      if (
-        this.search.toLowerCase() ==
-        this.$store.getters.user.email.toLowerCase()
-      ) {
-        this.$store.commit(
-          "snackbar",
-          "Myślałem, że brak znajomych to smutek, ale zapraszanie samego siebie... ;)"
-        );
-        return;
-      }
-      this.$store.commit("loading", true);
-      db.collection("users")
-        .where("email", "==", this.search.toLowerCase())
-        .limit(1)
-        .get()
-        .then((querySnapshot) => {
-          if (querySnapshot.docs.length == 0) {
-            this.$store.commit("snackbar", "Nie znaleziono użytkownika!");
-            this.$store.commit("loading", false);
-          }
-          querySnapshot.forEach((doc) => {
-            if (!this.user.friends.includes(doc.id)) {
-              this.user.friends.push(doc.id);
-              db.collection("users")
-                .doc(this.user.uid)
-                .update({ friends: this.user.friends })
-                .then(() => {
-                  this.$store.commit("snackbar", "To teraz piwko!");
-                  this.$store.commit("loading", false);
-                  this.search = "";
-                });
-              let friends = doc.data().friends;
-              friends.push(this.user.uid);
-              db.collection("users").doc(doc.id).update({ friends: friends });
-              this.$store.dispatch("friends");
-            } else {
-              this.$store.commit("loading", false);
-              this.$store.commit(
-                "snackbar",
-                "Już masz tego znajomego. Dodanie go drugi raz nie sprawi, że będzie Cię lubił bardziej..."
-              );
-            }
-          });
-        });
+      this.$store.dispatch("addFriend", { search: this.search });
     },
-    async deleteFriend(friend) {
-      if (!confirm(`Czy na pewno chcesz usunąć kolegę ${friend.name}?`)) return;
-      await db
-        .collection("users")
-        .doc(friend.id)
-        .onSnapshot((doc) => {
-          let friendFriends = doc.data().friends;
-          friendFriends.splice(friendFriends.indexOf(this.user.uid), 1);
-          db.collection("users")
-            .doc(friend.id)
-            .update({ friends: friendFriends });
-        });
-
-      let myFriends = this.user.friends;
-      myFriends.splice(myFriends.indexOf(friend.id), 1);
-
-      await db
-        .collection("users")
-        .doc(this.user.uid)
-        .update({ friends: myFriends })
-        .then(() => {
-          this.$store.commit("snackbar", "Przykro, że się nie dogadaliście...");
-          this.$store.dispatch("friends");
-        });
+    deleteFriend(friend) {
+      this.$store.dispatch("deleteFriend", { friend });
     },
   },
 };
