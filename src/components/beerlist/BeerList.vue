@@ -185,8 +185,6 @@ export default {
         (error) => console.log(error),
         () => {
           uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            let beerList = this.user.BeerList;
-            beerList.push({});
             db.collection("beers")
               .add({
                 name: this.name,
