@@ -172,11 +172,10 @@
       </v-list>
 
       <v-btn
-        :disabled="mod == undefined ? true : mod.isReady"
         class="mt-5"
-        color="success"
+        :color="mod.isReady ? 'error' : 'success'"
         @click="ready"
-        >Zgłoś gotowość!</v-btn
+        >{{ mod.isReady ? "Nie gotowy" : "Zgłoś gotowość" }}!</v-btn
       >
 
       <v-btn
@@ -319,13 +318,22 @@ export default {
     },
     ready() {
       let participants = this.room.participants;
+      let status =
+        participants[
+          participants.indexOf(
+            participants.find(
+              (participant) => participant.userID == this.user.uid
+            )
+          )
+        ].isReady;
       participants[
         participants.indexOf(
           participants.find(
             (participant) => participant.userID == this.user.uid
           )
         )
-      ].isReady = true;
+      ].isReady = !status;
+
       db.collection("rooms").doc(this.room.id).update({ participants });
     },
     setParticipantsData() {

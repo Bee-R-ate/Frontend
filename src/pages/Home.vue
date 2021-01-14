@@ -48,6 +48,11 @@ export default {
 </script>
 
 <style>
+@media (max-width: 777px) {
+  .beer-handy {
+    display: none;
+  }
+}
 @media (min-height: 670px) {
   .home-container.home,
   .home-container.auth {

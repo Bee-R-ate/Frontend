@@ -26,6 +26,7 @@ export default {
     },
 
     async addFriend({ commit, rootGetters, dispatch }, payload) {
+      console.log(rootGetters);
       if (
         payload.search.toLowerCase() == rootGetters.user.email.toLowerCase()
       ) {
@@ -47,20 +48,31 @@ export default {
             commit("loading", false);
           }
           querySnapshot.forEach((doc) => {
-            if (!rootGetters.friends.includes(doc.id)) {
-              rootGetters.friends.push(doc.id);
+            let myFriends = rootGetters.friends;
+            if (!myFriends.includes(doc.id)) {
+              myFriends.push(doc.id);
               db.collection("users")
-                .doc(rootGetters.uid)
-                .update({ friends: rootGetters.friends })
+                .doc(rootGetters.user.uid)
+                .update({ friends: myFriends })
                 .then(() => {
                   commit("snackbar", "To teraz piwko!");
                   commit("loading", false);
-                  payload.search = "";
+
+                  db.collection("users")
+                    .doc(rootGetters.user.uid)
+                    .get()
+                    .then((userDoc) => {
+                      let user = userDoc.data();
+                      user.uid = userDoc.id;
+                      commit("setUser", user);
+                      let friends = doc.data().friends;
+                      friends.push(rootGetters.user.uid);
+                      db.collection("users")
+                        .doc(doc.id)
+                        .update({ friends: friends });
+                      dispatch("friends");
+                    });
                 });
-              let friends = doc.data().friends;
-              friends.push(rootGetters.uid);
-              db.collection("users").doc(doc.id).update({ friends: friends });
-              dispatch("friends");
             } else {
               commit("loading", false);
               commit(

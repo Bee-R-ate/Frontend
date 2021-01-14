@@ -106,9 +106,8 @@
             block
             class="mt-8"
             @click="ready"
-            :disabled="currentParticipant ? currentParticipant.isReady : true"
-            color="success"
-            >Gotowy</v-btn
+            :color="currentParticipant.isReady ? 'error' : 'success'"
+            >{{ currentParticipant.isReady ? "Nie gotowy" : "Gotowy" }}</v-btn
           >
         </div>
       </div>
@@ -234,6 +233,7 @@ export default {
       this.resetScores();
     },
     nextBeer() {
+      this.addScores();
       this.$store.commit("loading", true);
       let currentBeer = this.room.currentBeer + 1;
       let participants = this.room.participants;
@@ -277,17 +277,7 @@ export default {
         }
       });
     },
-    ready() {
-      this.$store.commit("loading", true);
-      let participants = this.room.participants;
-      participants[
-        participants.indexOf(
-          participants.find(
-            (participant) => participant.userID == this.user.uid
-          )
-        )
-      ].isReady = true;
-
+    addScores() {
       let beerList = this.room.beerList;
       let userScores = beerList[this.room.currentBeer].userScores;
       let userScoreIndex = userScores.indexOf(
@@ -308,7 +298,7 @@ export default {
 
       db.collection("rooms")
         .doc(this.room.id)
-        .update({ participants, beerList })
+        .update({ beerList })
         .then(() => {
           this.$store.commit("snackbar", "Zgłosiłeś gotowość!");
           this.$store.commit("loading", false);
@@ -317,6 +307,26 @@ export default {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
           this.$store.commit("loading", false);
         });
+    },
+    ready() {
+      let participants = this.room.participants;
+      let status =
+        participants[
+          participants.indexOf(
+            participants.find(
+              (participant) => participant.userID == this.user.uid
+            )
+          )
+        ].isReady;
+
+      participants[
+        participants.indexOf(
+          participants.find(
+            (participant) => participant.userID == this.user.uid
+          )
+        )
+      ].isReady = !status;
+      db.collection("rooms").doc(this.room.id).update({ participants });
     },
   },
   created() {

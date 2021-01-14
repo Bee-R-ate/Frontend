@@ -9,7 +9,7 @@
       <h2 class="home-title">Moje pokoje</h2>
 
       <v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
-        <div v-for="(room, i) in myRooms" :key="i">
+        <div v-for="(room, i) in rooms" :key="i">
           <router-link :to="myRooms[i] ? setRoomLink(room, i) : '/moje-pokoje'">
             <v-list-item class="px-0">
               <v-list-item-content class="pa-5">
