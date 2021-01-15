@@ -1,4 +1,6 @@
 import { db } from "@/firebase/firebase";
+import firebase from "firebase/app";
+import translateErrors from "@/mixins/translateErrors";
 
 export default {
   state: {
@@ -25,54 +27,60 @@ export default {
       commit("friends", friends);
     },
 
-    async addFriend({ commit, rootGetters, dispatch }, payload) {
-      console.log(rootGetters);
-      if (
-        payload.search.toLowerCase() == rootGetters.user.email.toLowerCase()
-      ) {
+    addFriend({ commit, rootGetters, dispatch }, searchString) {
+      if (searchString.toLowerCase() === rootGetters.user.email.toLowerCase()) {
         commit(
           "snackbar",
           "Myślałem, że brak znajomych to smutek, ale zapraszanie samego siebie... ;)"
         );
         return;
       }
+
+      const usersRef = db.collection("users");
+
+      const uid = rootGetters.user.uid;
+      const currentUserRef = db.collection("users").doc(uid);
+
       commit("loading", true);
-      await db
-        .collection("users")
-        .where("email", "==", payload.search.toLowerCase())
+
+      usersRef
+        .where("email", "==", searchString)
         .limit(1)
         .get()
         .then((querySnapshot) => {
-          if (querySnapshot.docs.length == 0) {
+          if (querySnapshot.docs.length === 0) {
             commit("snackbar", "Nie znaleziono użytkownika!");
             commit("loading", false);
           }
-          querySnapshot.forEach((doc) => {
-            let myFriends = rootGetters.friends;
-            if (!myFriends.includes(doc.id)) {
-              myFriends.push(doc.id);
-              db.collection("users")
-                .doc(rootGetters.user.uid)
-                .update({ friends: myFriends })
-                .then(() => {
-                  commit("snackbar", "To teraz piwko!");
-                  commit("loading", false);
 
-                  db.collection("users")
-                    .doc(rootGetters.user.uid)
-                    .get()
-                    .then((userDoc) => {
-                      let user = userDoc.data();
-                      user.uid = userDoc.id;
-                      commit("setUser", user);
-                      let friends = doc.data().friends;
-                      friends.push(rootGetters.user.uid);
-                      db.collection("users")
-                        .doc(doc.id)
-                        .update({ friends: friends });
-                      dispatch("friends");
-                    });
+          querySnapshot.forEach((userDoc) => {
+            const myFriends = rootGetters.friends;
+
+            if (!myFriends.includes(userDoc.id)) {
+              const updateUser = currentUserRef
+                .update({
+                  friends: firebase.firestore.FieldValue.arrayUnion(userDoc.id),
+                })
+                .catch((err) => {
+                  console.log(err);
+                  commit("snackbar", translateErrors(err.code));
                 });
+
+              const updateFriend = usersRef
+                .doc(userDoc.id)
+                .update({
+                  friends: firebase.firestore.FieldValue.arrayUnion(uid),
+                })
+                .catch((err) => {
+                  console.log(err);
+                  commit("snackbar", translateErrors(err.code));
+                });
+
+              Promise.all([updateFriend, updateUser]).then(async () => {
+                commit("snackbar", "To teraz piwko!");
+                await dispatch("friends");
+                commit("loading", false);
+              });
             } else {
               commit("loading", false);
               commit(
@@ -83,31 +91,38 @@ export default {
           });
         });
     },
-    async deleteFriend({ commit, rootGetters, dispatch }, payload) {
-      if (!confirm(`Czy na pewno chcesz usunąć kolegę ${payload.friend.name}?`))
+
+    deleteFriend({ commit, rootGetters, dispatch }, exFriend) {
+      if (!confirm(`Czy na pewno chcesz usunąć kolegę ${exFriend.name}?`))
         return;
-      await db
-        .collection("users")
-        .doc(payload.friend.id)
-        .onSnapshot((doc) => {
-          let friendFriends = doc.data().friends;
-          friendFriends.splice(friendFriends.indexOf(rootGetters.user.uid), 1);
-          db.collection("users")
-            .doc(payload.friend.id)
-            .update({ friends: friendFriends });
+
+      const usersRef = db.collection("users");
+      const uid = rootGetters.user.uid;
+
+      const updateUser = usersRef
+        .doc(exFriend.id)
+        .update({
+          friends: firebase.firestore.FieldValue.arrayRemove(uid),
+        })
+        .catch((err) => {
+          console.log(err);
+          commit("snackbar", translateErrors(err.code));
         });
 
-      let myFriends = rootGetters.user.friends;
-      myFriends.splice(myFriends.indexOf(payload.friend.id), 1);
-
-      await db
-        .collection("users")
-        .doc(rootGetters.user.uid)
-        .update({ friends: myFriends })
-        .then(() => {
-          commit("snackbar", "Przykro, że się nie dogadaliście...");
-          dispatch("friends");
+      const updateExFriend = usersRef
+        .doc(uid)
+        .update({
+          friends: firebase.firestore.FieldValue.arrayRemove(exFriend.id),
+        })
+        .catch((err) => {
+          console.log(err);
+          commit("snackbar", translateErrors(err.code));
         });
+
+      Promise.all([updateUser, updateExFriend]).then(() => {
+        commit("snackbar", "Przykro, że się nie dogadaliście...");
+        dispatch("friends");
+      });
     },
   },
 };
