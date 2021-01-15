@@ -7,7 +7,7 @@
         </v-btn>
       </div>
       <h2 class="home-title mt-2">Moi znajomi</h2>
-      <v-form v-model="valid" ref="form">
+      <v-form v-model="valid" ref="form" @submit.prevent="addFriend">
         <v-text-field
           class="pa-3 pb-1 mt-0 friends-search"
           color="black"
@@ -17,8 +17,8 @@
           :rules="[rules.email]"
         ></v-text-field>
         <v-btn
+          type="submit"
           style="width: 100%"
-          @click="addFriend"
           class="mt-2 mb-3"
           color="secondary"
           :disabled="!valid"
@@ -78,10 +78,11 @@ export default {
   methods: {
     itemText: (item) => item.Email,
     addFriend() {
-      this.$store.dispatch("addFriend", { search: this.search });
+      this.$store.dispatch("addFriend", this.search);
     },
     deleteFriend(friend) {
-      this.$store.dispatch("deleteFriend", { friend });
+      console.log("delete friend");
+      this.$store.dispatch("deleteFriend", friend);
     },
   },
 };
