@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <div class="home-content position-relative friends">
+    <v-container class="home-content position-relative friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -56,7 +56,11 @@
 
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
-                    <v-list-item-title v-html="beer.name"></v-list-item-title>
+                    <v-list-item-title
+                      ><div class="ellipsis">
+                        {{ beer.name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                 </v-list-item-content>
               </v-list-item>
@@ -81,8 +85,10 @@
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
                     <v-list-item-title
-                      v-html="getBeerData(beer).name"
-                    ></v-list-item-title>
+                      ><div class="ellipsis">
+                        {{ getBeerData(beer).name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                   <div class="delete-friend-container">
                     <div>
@@ -158,7 +164,7 @@
                   @click="kickParticipant(participant, i)"
                   class="ml-2"
                   v-if="
-                    room.modID == user.uid && participant.userID != user.uid
+                    room.modID === user.uid && participant.userID !== user.uid
                   "
                   icon
                 >
@@ -191,7 +197,7 @@
         "
         >Rozpocznij debatę!</v-btn
       >
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -217,7 +223,7 @@ export default {
         if (
           this.room.participants &&
           !this.room.participants.find(
-            (participant) => participant.userID == this.user.uid
+            (participant) => participant.userID === this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
@@ -483,3 +489,15 @@ export default {
   },
 };
 </script>
+
+<style>
+html {
+  word-break: break-word !important;
+}
+
+.ellipsis {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+</style>
