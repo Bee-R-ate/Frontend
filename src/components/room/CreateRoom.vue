@@ -84,7 +84,13 @@
           >
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
-                <v-img :src="friend.imageURL"></v-img>
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -108,7 +114,13 @@
           <div v-for="(friend, i) in invitedFriends" :key="i">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
-                <v-img :src="friend.imageURL"></v-img>
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -154,6 +166,7 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -176,6 +189,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     deleteFromBeerList(beer) {
       this.beerList.splice(this.beerList.indexOf(beer), 1);
     },
