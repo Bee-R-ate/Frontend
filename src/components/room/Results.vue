@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div class="home-content position-relative">
+    <div v-if="!roomIsLoading" class="home-content position-relative">
       <div class="back-container">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -44,6 +44,7 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -52,20 +53,18 @@ export default {
       participantsData: [],
     };
   },
+
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
+    ...mapGetters(["room", "roomIsLoading", "user"]),
   },
   watch: {
     room: {
       deep: true,
-      handler() {
-        if (this.room.beerList) this.setBeersData();
-        if (this.room.participants) this.setParticipantsData();
+      handler(newData) {
+        if (!newData) return;
+
+        if (newData.beerList) this.setBeersData();
+        if (newData.participants) this.setParticipantsData();
       },
     },
   },
@@ -98,7 +97,7 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>

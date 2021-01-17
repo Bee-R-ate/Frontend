@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div class="home-content position-relative">
+    <div v-if="!roomIsLoading && room" class="home-content position-relative">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -8,7 +8,7 @@
       </div>
       <v-list v-if="room.modID == user.uid" class="py-0 my-5 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <div v-if="participant.userID != user.uid">
+          <div v-if="participant.userID != user.uid && participantsData[i]">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
@@ -122,6 +122,7 @@
 <script>
 import { db } from "@/firebase/firebase";
 import averages from "@/helpers/game/calculateAverages";
+import { mapGetters } from "vuex";
 import generateAvatar from "@/mixins/avatar";
 
 export default {
@@ -139,14 +140,18 @@ export default {
   watch: {
     room: {
       deep: true,
-      handler() {
-        if (this.room.beerList) this.setBeersData();
-        if (this.room.participants) this.setParticipantsData();
-        if (!this.room.inProgress && this.room.currentBeer != 0)
+      handler(newData) {
+        if (!newData) return;
+
+        if (newData.beerList) this.setBeersData();
+        if (newData.participants) this.setParticipantsData();
+        if (!newData.inProgress && newData.currentBeer != 0)
           this.$router.push(`/wyniki/${this.room.id}`);
       },
     },
     "room.participants"() {
+      if (!this.room) return;
+
       if (this.room.participants) {
         let status = true;
         this.room.participants.forEach((user) =>
@@ -159,21 +164,23 @@ export default {
         }
       }
     },
-    currentParticipant() {
-      if (this.currentParticipant && this.currentParticipant.isEliminated) {
-        this.$store.commit("snackbar", "Przykro mi, zostałeś wyeliminowany!");
-        this.$router.push("/");
-      }
+    currentParticipant: {
+      handler(newData) {
+        console.log(this.room);
+        if (!this.room) return;
+
+        if (newData && newData.isEliminated) {
+          this.$store.commit("snackbar", "Przykro mi, zostałeś wyeliminowany!");
+          this.$router.push("/");
+        }
+      },
     },
   },
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
+    ...mapGetters(["room", "roomIsLoading", "user", "roomBeers"]),
+
     currentParticipant() {
+      if (!this.room) return;
       return this.room.participants
         ? this.room.participants.find(
             (participant) => participant.userID == this.user.uid
@@ -338,7 +345,7 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>

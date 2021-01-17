@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <v-container class="home-content position-relative friends">
+    <v-container v-if="!roomIsLoading" class="home-content position-relative friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -15,7 +15,7 @@
           @click="editName = true"
           large
           icon
-          v-if="room.modID == user.uid"
+          v-if="room.modID === user.uid"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -31,22 +31,27 @@
         </v-btn>
       </div>
 
-      <div v-if="room.modID == user.uid && room.participants">
+      <div v-if="room.modID === user.uid && room.participants">
         <h2 class="home-title">Lista piw</h2>
         <p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
-        <v-text-field
-          color="black"
-          label="Znajdź piwo..."
-          prepend-icon="mdi-magnify"
-          v-model="search"
-        ></v-text-field>
+
+        <v-form @submit.prevent="searchBeers">
+          <v-text-field
+            color="black"
+            label="Znajdź piwo..."
+            prepend-icon="mdi-magnify"
+            v-model="search"
+            :loading="beersAreLoading"
+          ></v-text-field>
+        </v-form>
+
         <v-list v-if="beers.length > 0" class="py-0 friend-list">
           <div v-for="(beer, i) in beers" :key="i">
             <div
               @click="addToBeerList(beer)"
               v-if="
                 beer.name.toLowerCase().includes(search.toLowerCase()) &&
-                !room.beerList.find((b) => b.beerID == beer.id)
+                !room.beerList.find((b) => b.beerID === beer.id)
               "
             >
               <v-list-item class="px-0">
@@ -64,7 +69,7 @@
                   </div>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="i != beers.length - 1"></v-divider>
+              <v-divider v-if="i != roomBeers.length - 1"></v-divider>
             </div>
           </div>
         </v-list>
@@ -104,7 +109,7 @@
                   </div>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="i != beers.length - 1"></v-divider>
+              <v-divider v-if="i != roomBeers.length - 1"></v-divider>
             </div>
           </v-list>
         </div>
@@ -117,7 +122,7 @@
               v-if="
                 room.participants.find(
                   (participant) => friend.id == participant.userID
-                ) == undefined
+                ) === undefined
               "
             >
               <v-list-item class="px-0">
@@ -149,7 +154,7 @@
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
       <v-list class="py-0 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <v-list-item class="px-0">
+          <v-list-item v-if="participantsData[i]" class="px-0">
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
                 v-if="participantsData[i].imageURL != null"
@@ -183,6 +188,11 @@
               </div>
             </v-list-item-content>
           </v-list-item>
+          <v-progress-circular
+            v-else
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
           <v-divider v-if="i != room.participants.length - 1"></v-divider>
         </div>
       </v-list>
@@ -213,6 +223,8 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import { mapGetters } from "vuex";
+import searchBeersMixin from "@/mixins/searchBeersMixin";
 import generateAvatar from "@/mixins/avatar";
 
 export default {
@@ -224,38 +236,37 @@ export default {
       search: "",
     };
   },
+
+  mixins: [searchBeersMixin],
+
   watch: {
     "room.participants"() {
+      if (!this.room) return;
       if (this.room.participants) this.setParticipantsData();
     },
     room: {
       deep: true,
-      handler() {
+      handler(newData) {
+        if (!newData) return;
+
         if (
-          this.room.participants &&
-          !this.room.participants.find(
+          newData.participants &&
+          !newData.participants.find(
             (participant) => participant.userID === this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
           this.$router.push("/");
         }
-        if (this.room.inProgress) {
-          this.$router.push(`/rozgrywka/${this.room.id}`);
+        if (newData.inProgress) {
+          this.$router.push(`/rozgrywka/${newData.id}`);
         }
       },
     },
   },
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
-    beers() {
-      return this.$store.getters.beers;
-    },
+    ...mapGetters(["room", "roomIsLoading", "user", "beers", "roomBeers"]),
+
     mod() {
       return this.room.participants == undefined
         ? {}
@@ -272,7 +283,7 @@ export default {
       return generateAvatar(friend.name);
     },
     getBeerData(beer) {
-      return this.beers.find((b) => b.id == beer.beerID);
+      return this.roomBeers.find((b) => b.id === beer.beerID);
     },
     addToBeerList(beer) {
       this.$store.commit("loading", true);
@@ -364,7 +375,7 @@ export default {
           .get();
         let data = { ...promise.data(), id: promise.id };
         if (
-          this.participantsData.find((userData) => userData.id == data.id) ==
+          this.participantsData.find((userData) => userData.id == data.id) ===
           undefined
         ) {
           this.participantsData.push(data);
@@ -499,7 +510,7 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>
