@@ -132,7 +132,6 @@ export default {
               return;
             }
             await dispatch("friends");
-            await dispatch("beers");
 
             commit("authSuccess");
             commit("loading", false);

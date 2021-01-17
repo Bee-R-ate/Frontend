@@ -8,21 +8,19 @@
       </div>
       <h2 class="home-title">Dodaj listę piw!</h2>
       <p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
-      <v-text-field
-        color="black"
-        label="Znajdź piwo..."
-        prepend-icon="mdi-magnify"
-        v-model="search"
-      ></v-text-field>
+
+      <v-form @submit.prevent="searchBeers">
+        <v-text-field
+          color="black"
+          label="Znajdź piwo..."
+          prepend-icon="mdi-magnify"
+          v-model="search"
+        ></v-text-field>
+      </v-form>
+
       <v-list v-if="beers.length > 0" class="py-0 friend-list">
-        <div v-for="(beer, i) in beers" :key="i">
-          <div
-            @click="addToBeerList(beer)"
-            v-if="
-              beer.name.toLowerCase().includes(search.toLowerCase()) &&
-              beerList.indexOf(beer) == -1
-            "
-          >
+        <div v-for="(beer, i) in beers" :key="i" style="cursor: pointer">
+          <div @click="addToBeerList(beer)">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img :src="beer.photoUrl"></v-img>
@@ -32,14 +30,11 @@
                 ><div class="ellipsis">{{ beer.name }}</div></v-list-item-title
               >
             </v-list-item>
-            <v-divider v-if="i != beers.length - 1"></v-divider>
+            <v-divider v-if="i !== beers.length - 1"></v-divider>
           </div>
         </div>
       </v-list>
-      <div v-else>
-        Nie masz w tej chwili piw,
-        <router-link to="/piwa">zneutralizuj suszę i dodaj piwa</router-link>.
-      </div>
+      <div v-else>Zneutralizuj suszę i dodaj piwa</div>
 
       <div v-if="beerList.length > 0">
         <h2 class="home-title">Wybrane piwa:</h2>
@@ -68,19 +63,19 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i != beers.length - 1"></v-divider>
+            <v-divider v-if="i !== beers.length - 1"></v-divider>
           </div>
         </v-list>
       </div>
 
-      <h2 v-if="invitedFriends.length != friends.length" class="home-title">
+      <h2 v-if="invitedFriends.length !== friends.length" class="home-title">
         Zaproś graczy!
       </h2>
       <v-list v-if="friends.length > 0" class="py-0 mt-3 friend-list">
-        <div v-for="(friend, i) in friends" :key="i">
+        <div v-for="(friend, i) in friends" :key="i" style="cursor: pointer">
           <div
             @click="inviteFriend(friend)"
-            v-if="invitedFriends.indexOf(friend) == -1"
+            v-if="invitedFriends.indexOf(friend) === -1"
           >
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
@@ -99,7 +94,7 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i != friends.length - 1"></v-divider>
+            <v-divider v-if="i !== friends.length - 1"></v-divider>
           </div>
         </div>
       </v-list>
@@ -141,7 +136,7 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i != invitedFriends.length - 1"></v-divider>
+            <v-divider v-if="i !== invitedFriends.length - 1"></v-divider>
           </div>
         </v-list>
       </div>
@@ -155,7 +150,9 @@
 
       <v-btn
         class="mt-12"
-        :disabled="beerList.length == 0 || invitedFriends.length == 0 || !name"
+        :disabled="
+          beerList.length === 0 || invitedFriends.length === 0 || !name
+        "
         color="secondary"
         @click="createRoom"
         >Utwórz pokój</v-btn
@@ -166,6 +163,7 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import searchBeersMixin from "@/mixins/searchBeersMixin";
 import generateAvatar from "@/mixins/avatar";
 
 export default {
@@ -177,7 +175,16 @@ export default {
       name: "",
     };
   },
+
+  mixins: [searchBeersMixin],
+
+  beforeMount() {
+    this.$store.commit("beers", []);
+  },
   computed: {
+    beersAreLoading() {
+      return this.$store.getters.beersAreLoading;
+    },
     beers() {
       return this.$store.getters.beers;
     },
@@ -199,6 +206,10 @@ export default {
       this.invitedFriends.splice(this.invitedFriends.indexOf(friend), 1);
     },
     addToBeerList(beer) {
+      if (this.beerList.some((addedBeer) => addedBeer.id === beer.id)) {
+        this.$store.commit("snackbar", "To piwo jest już na liście");
+        return;
+      }
       this.beerList.push(beer);
     },
     inviteFriend(friend) {
