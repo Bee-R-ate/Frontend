@@ -12,8 +12,12 @@
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
+                  v-if="participantsData[i].imageURL != null"
                   :src="participantsData[i] ? participantsData[i].imageURL : ''"
                 ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(participantsData[i]) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -118,6 +122,7 @@
 <script>
 import { db } from "@/firebase/firebase";
 import averages from "@/helpers/game/calculateAverages";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -177,6 +182,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     eliminate(participant, i) {
       if (participant.isEliminated) return;
       if (

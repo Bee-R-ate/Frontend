@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center room-listing home-container">
-    <div class="home-content">
+    <v-container class="home-content">
       <div class="back-container">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -13,7 +13,7 @@
           <router-link :to="myRooms[i] ? setRoomLink(room, i) : '/moje-pokoje'">
             <v-list-item class="px-0">
               <v-list-item-content class="pa-5">
-                <div class="">
+                <div class="ellipsis">
                   <v-list-item-title
                     v-html="myRooms[i] ? myRooms[i].name : ''"
                   ></v-list-item-title>
@@ -29,7 +29,7 @@
           >Kliknij, aby stworzyć pokój!</router-link
         >
       </div>
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -94,4 +94,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.ellipsis {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+</style>
