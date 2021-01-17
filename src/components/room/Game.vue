@@ -8,7 +8,7 @@
       </div>
       <v-list v-if="room.modID == user.uid" class="py-0 my-5 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <div v-if="participant.userID != user.uid && participantsData[i]">
+          <div v-if="participant.userID != user.uid">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
