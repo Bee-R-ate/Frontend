@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <router-view class="pa-md-10 second-bg router-view" />
+    <router-view class="pa-10 second-bg router-view" />
     <Snackbar />
     <v-overlay color="#ca9b17" :value="loading" opacity="1">
       <v-progress-circular

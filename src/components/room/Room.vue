@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <v-container class="home-content position-relative friends">
+    <div class="home-content position-relative friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -56,11 +56,7 @@
 
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
-                    <v-list-item-title
-                      ><div class="ellipsis">
-                        {{ beer.name }}
-                      </div></v-list-item-title
-                    >
+                    <v-list-item-title v-html="beer.name"></v-list-item-title>
                   </div>
                 </v-list-item-content>
               </v-list-item>
@@ -85,10 +81,8 @@
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
                     <v-list-item-title
-                      ><div class="ellipsis">
-                        {{ getBeerData(beer).name }}
-                      </div></v-list-item-title
-                    >
+                      v-html="getBeerData(beer).name"
+                    ></v-list-item-title>
                   </div>
                   <div class="delete-friend-container">
                     <div>
@@ -122,13 +116,7 @@
             >
               <v-list-item class="px-0">
                 <v-list-item-avatar :size="60" class="ml-3">
-                  <v-img
-                    v-if="friend.imageURL != null"
-                    :src="friend.imageURL"
-                  ></v-img>
-                  <v-avatar v-else class="friend-avatar-placeholder" size="60">
-                    {{ generateAvatarPlaceholder(friend) }}
-                  </v-avatar>
+                  <v-img :src="friend.imageURL"></v-img>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="position-relative">
@@ -152,12 +140,8 @@
           <v-list-item class="px-0">
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
-                v-if="participantsData[i].imageURL != null"
                 :src="participantsData[i] ? participantsData[i].imageURL : ''"
               ></v-img>
-              <v-avatar v-else class="friend-avatar-placeholder" size="60">
-                {{ generateAvatarPlaceholder(participantsData[i]) }}
-              </v-avatar>
             </v-list-item-avatar>
 
             <v-list-item-content class="position-relative">
@@ -174,7 +158,7 @@
                   @click="kickParticipant(participant, i)"
                   class="ml-2"
                   v-if="
-                    room.modID === user.uid && participant.userID !== user.uid
+                    room.modID == user.uid && participant.userID != user.uid
                   "
                   icon
                 >
@@ -207,13 +191,12 @@
         "
         >Rozpocznij debatę!</v-btn
       >
-    </v-container>
+    </div>
   </div>
 </template>
 
 <script>
 import { db } from "@/firebase/firebase";
-import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -234,7 +217,7 @@ export default {
         if (
           this.room.participants &&
           !this.room.participants.find(
-            (participant) => participant.userID === this.user.uid
+            (participant) => participant.userID == this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
@@ -268,9 +251,6 @@ export default {
     },
   },
   methods: {
-    generateAvatarPlaceholder(friend) {
-      return generateAvatar(friend.name);
-    },
     getBeerData(beer) {
       return this.beers.find((b) => b.id == beer.beerID);
     },
@@ -503,15 +483,3 @@ export default {
   },
 };
 </script>
-
-<style>
-html {
-  word-break: break-word !important;
-}
-
-.ellipsis {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-</style>

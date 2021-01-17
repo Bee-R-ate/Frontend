@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home-container beers">
-    <v-container class="home-content position-relative text-center friends">
+    <div class="home-content position-relative text-center friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -58,7 +58,7 @@
                 <div class="pr-3 py-3">
                   <div class="text-left" v-if="editFlag != i">
                     <v-list-item-title
-                      class="font-weight-bold mb-2 ellipsis"
+                      class="font-weight-bold mb-2"
                       style="font-size: 2rem"
                       v-html="beer.name"
                     ></v-list-item-title>
@@ -122,7 +122,7 @@
         </div>
       </v-list>
       <div v-else>Nie masz w tej chwili piw, trochę suszy.</div>
-    </v-container>
+    </div>
   </div>
 </template>
 
@@ -194,11 +194,5 @@ export default {
 }
 .beers {
   /*overflow-y: scroll; */
-}
-
-.ellipsis {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
 }
 </style>
