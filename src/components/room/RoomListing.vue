@@ -9,17 +9,20 @@
       <h2 class="home-title">Moje pokoje</h2>
 
       <v-list v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
-        <div v-for="(room, i) in rooms" :key="i">
-          <router-link :to="myRooms[i] ? setRoomLink(room, i) : '/moje-pokoje'">
-            <v-list-item class="px-0">
+        <div v-for="(room, i) in myRooms" :key="i">
+          <router-link :to="room ? setRoomLink(room) : '/moje-pokoje'">
+            <v-list-item
+              class="px-0 room-card"
+              :class="{ 'room-card--inProgress': progressStatus(room) }"
+            >
               <v-list-item-content class="pa-5">
                 <div class="ellipsis">
                   <v-list-item-title
-                    v-html="myRooms[i] ? myRooms[i].name : ''"
+                    v-html="room ? room.name : ''"
                   ></v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ myRooms[i] ? returnDate(myRooms[i].createdAt) : "" }}
-                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>{{
+                    progressTitle(progressStatus(room))
+                  }}</v-list-item-subtitle>
                 </div>
               </v-list-item-content>
             </v-list-item>
@@ -55,61 +58,26 @@ export default {
     },
   },
   methods: {
-    returnDate(timestamp) {
-      const date = timestamp.toDate();
-      function prependTime(time) {
-        if (time < 10) {
-          time = "0" + time.toString();
-        }
-
-        return time;
-      }
-      return (
-        prependTime(date.getHours()) +
-        ":" +
-        prependTime(date.getMinutes()) +
-        " " +
-        prependTime(date.getDate()) +
-        "." +
-        prependTime(date.getMonth() + 1) +
-        "." +
-        date.getFullYear()
-      );
+    progressTitle(progress) {
+      console.log(progress);
+      if (progress === 1) return "W trakcie";
+      if (progress === 2) return "Zakończony";
+      return "Nierozpoczęty";
     },
-    setRoomLink(room, i) {
+    progressStatus(room) {
+      if (room.inProgress) return 1;
+      if (!room.inProgress && room.currentBeer !== 0) return 2;
+      return 0;
+    },
+    setRoomLink(room) {
       let segment = "pokoj";
-      if (this.myRooms[i].inProgress) segment = "rozgrywka";
-      if (!this.myRooms[i].inProgress && this.myRooms[i].currentBeer != 0)
-        segment = "wyniki";
-      return `/${segment}/${room}`;
+      if (room.inProgress) segment = "rozgrywka";
+      if (!room.inProgress && room.currentBeer !== 0) segment = "wyniki";
+      return `/${segment}/${room.id}`;
     },
 
     getRoomsData() {
       this.$store.dispatch("getRoomsData");
-
-      // console.log("getRoomsData");
-      //
-      // if (this.rooms.length > 0) {
-      //   let rooms = [];
-      //   let promises = [];
-      //
-      //   this.rooms.forEach(async (room) => {
-      //     let promise = db
-      //       .collection("rooms")
-      //       .doc(room)
-      //       .get()
-      //       .then((doc) => {
-      //         return doc.data();
-      //       });
-      //     promises.push(promise);
-      //   });
-      //
-      //   Promise.all(promises).then((beers) => {
-      //     rooms.push(...beers);
-      //   });
-      //
-      //   this.roomsData = rooms;
-      // }
     },
   },
   created() {
@@ -119,6 +87,12 @@ export default {
 </script>
 
 <style>
+.room-card {
+}
+
+.room-card--inProgress {
+}
+
 .ellipsis {
   white-space: nowrap !important;
   overflow: hidden !important;
