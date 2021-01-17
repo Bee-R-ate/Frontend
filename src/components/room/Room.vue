@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <div v-if="!roomIsLoading" class="home-content position-relative friends">
+    <v-container v-if="!roomIsLoading" class="home-content position-relative friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -61,7 +61,11 @@
 
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
-                    <v-list-item-title v-html="beer.name"></v-list-item-title>
+                    <v-list-item-title
+                      ><div class="ellipsis">
+                        {{ beer.name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                 </v-list-item-content>
               </v-list-item>
@@ -86,8 +90,10 @@
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
                     <v-list-item-title
-                      v-html="getBeerData(beer).name"
-                    ></v-list-item-title>
+                      ><div class="ellipsis">
+                        {{ getBeerData(beer).name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                   <div class="delete-friend-container">
                     <div>
@@ -116,12 +122,18 @@
               v-if="
                 room.participants.find(
                   (participant) => friend.id == participant.userID
-                ) == undefined
+                ) === undefined
               "
             >
               <v-list-item class="px-0">
                 <v-list-item-avatar :size="60" class="ml-3">
-                  <v-img :src="friend.imageURL"></v-img>
+                  <v-img
+                    v-if="friend.imageURL != null"
+                    :src="friend.imageURL"
+                  ></v-img>
+                  <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                    {{ generateAvatarPlaceholder(friend) }}
+                  </v-avatar>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="position-relative">
@@ -142,11 +154,15 @@
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
       <v-list class="py-0 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <v-list-item class="px-0">
+          <v-list-item v-if="participantsData[i]" class="px-0">
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
+                v-if="participantsData[i].imageURL != null"
                 :src="participantsData[i] ? participantsData[i].imageURL : ''"
               ></v-img>
+              <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                {{ generateAvatarPlaceholder(participantsData[i]) }}
+              </v-avatar>
             </v-list-item-avatar>
 
             <v-list-item-content class="position-relative">
@@ -163,7 +179,7 @@
                   @click="kickParticipant(participant, i)"
                   class="ml-2"
                   v-if="
-                    room.modID == user.uid && participant.userID != user.uid
+                    room.modID === user.uid && participant.userID !== user.uid
                   "
                   icon
                 >
@@ -172,6 +188,11 @@
               </div>
             </v-list-item-content>
           </v-list-item>
+          <v-progress-circular
+            v-else
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
           <v-divider v-if="i != room.participants.length - 1"></v-divider>
         </div>
       </v-list>
@@ -196,7 +217,7 @@
         "
         >Rozpocznij debatę!</v-btn
       >
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -204,6 +225,7 @@
 import { db } from "@/firebase/firebase";
 import { mapGetters } from "vuex";
 import searchBeersMixin from "@/mixins/searchBeersMixin";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -257,6 +279,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     getBeerData(beer) {
       return this.roomBeers.find((b) => b.id === beer.beerID);
     },
@@ -350,7 +375,7 @@ export default {
           .get();
         let data = { ...promise.data(), id: promise.id };
         if (
-          this.participantsData.find((userData) => userData.id == data.id) ==
+          this.participantsData.find((userData) => userData.id == data.id) ===
           undefined
         ) {
           this.participantsData.push(data);
@@ -489,3 +514,15 @@ export default {
   },
 };
 </script>
+
+<style>
+html {
+  word-break: break-word !important;
+}
+
+.ellipsis {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+</style>

@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center text-center create-room home-container">
-    <div class="home-content position-relative">
+    <v-container class="home-content position-relative">
       <div class="back-container" style="top: 0%">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -26,11 +26,9 @@
                 <v-img :src="beer.photoUrl"></v-img>
               </v-list-item-avatar>
 
-              <v-list-item-content class="position-relative">
-                <div class="pr-3 py-3">
-                  <v-list-item-title v-html="beer.name"></v-list-item-title>
-                </div>
-              </v-list-item-content>
+              <v-list-item-title
+                ><div class="ellipsis">{{ beer.name }}</div></v-list-item-title
+              >
             </v-list-item>
             <v-divider v-if="i !== beers.length - 1"></v-divider>
           </div>
@@ -81,7 +79,13 @@
           >
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
-                <v-img :src="friend.imageURL"></v-img>
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -105,7 +109,13 @@
           <div v-for="(friend, i) in invitedFriends" :key="i">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
-                <v-img :src="friend.imageURL"></v-img>
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -147,13 +157,14 @@
         @click="createRoom"
         >Utwórz pokój</v-btn
       >
-    </div>
+    </v-container>
   </div>
 </template>
 
 <script>
 import { db } from "@/firebase/firebase";
 import searchBeersMixin from "@/mixins/searchBeersMixin";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -185,6 +196,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     deleteFromBeerList(beer) {
       this.beerList.splice(this.beerList.indexOf(beer), 1);
     },
@@ -318,5 +332,15 @@ export default {
 
 a {
   color: white !important;
+}
+
+.home-content {
+  max-width: 1000px !important;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

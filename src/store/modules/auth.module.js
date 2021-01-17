@@ -79,8 +79,7 @@ export default {
           const user = {
             email: email,
             name: name,
-            imageURL:
-              "https://avatars0.githubusercontent.com/u/9064066?v=4&s=460",
+            imageURL: null,
             friends: [],
             myRooms: [],
           };
