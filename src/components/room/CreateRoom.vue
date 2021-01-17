@@ -166,6 +166,7 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import firebase from "firebase/app";
 import generateAvatar from "@/mixins/avatar";
 
 export default {
@@ -295,7 +296,9 @@ export default {
           createdAt: null,
         })
         .then((doc) => {
-          doc.update({});
+          doc.update({
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
           this.$store.commit("loading", false);
           this.$store.commit("snackbar", "Pomyślnie utworzono pokój!");
           this.saveMyRooms(doc.id);

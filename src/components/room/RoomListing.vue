@@ -17,6 +17,9 @@
                   <v-list-item-title
                     v-html="myRooms[i] ? myRooms[i].name : ''"
                   ></v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ myRooms[i] ? returnDate(myRooms[i].createdAt) : "" }}
+                  </v-list-item-subtitle>
                 </div>
               </v-list-item-content>
             </v-list-item>
@@ -52,6 +55,27 @@ export default {
     },
   },
   methods: {
+    returnDate(timestamp) {
+      const date = timestamp.toDate();
+      function prependTime(time) {
+        if (time < 10) {
+          time = "0" + time.toString();
+        }
+
+        return time;
+      }
+      return (
+        prependTime(date.getHours()) +
+        ":" +
+        prependTime(date.getMinutes()) +
+        " " +
+        prependTime(date.getDate()) +
+        "." +
+        prependTime(date.getMonth() + 1) +
+        "." +
+        date.getFullYear()
+      );
+    },
     setRoomLink(room, i) {
       let segment = "pokoj";
       if (this.myRooms[i].inProgress) segment = "rozgrywka";

@@ -54,7 +54,7 @@ export default {
 
         commit(
           "setMyRooms",
-          myRooms.sort((x, y) => x.timestamp - y.timestamp)
+          myRooms.sort((x, y) => x.createdAt.toDate() - y.createdAt.toDate())
         );
       }
     },
