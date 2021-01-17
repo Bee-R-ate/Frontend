@@ -6,15 +6,7 @@
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
-      <img
-        v-if="activePhoto != null"
-        class="profile-photo"
-        :src="activePhoto"
-        alt="avatar"
-      />
-      <v-avatar v-else class="avatar-placeholder" size="150">
-        {{ generateAvatarPlaceholder() }}
-      </v-avatar>
+      <img class="profile-photo" :src="activePhoto" alt="avatar" />
 
       <h2 class="home-title mb-3">Edytuj profil</h2>
       <v-container>
@@ -137,7 +129,6 @@
 
 <script type="text/javascript">
 import rules from "@/helpers/validation/rules";
-import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -159,10 +150,6 @@ export default {
   },
 
   methods: {
-    generateAvatarPlaceholder() {
-      return generateAvatar(this.user.name);
-    },
-
     editProfilePicture() {
       if (!this.$refs.avatarForm.validate() || this.file === null) return;
 
@@ -238,11 +225,5 @@ export default {
   border-radius: 50%;
   object-fit: cover;
   margin: auto;
-}
-
-.avatar-placeholder {
-  color: white;
-  font-size: 64px;
-  background-color: #804600;
 }
 </style>
