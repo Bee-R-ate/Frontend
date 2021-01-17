@@ -82,7 +82,7 @@ export default {
     getRoomsData({ commit, rootGetters }) {
       console.log("getRoomsData");
       const rooms = rootGetters.user.myRooms;
-
+      const usersRef = db.collection("users");
       if (rooms.length > 0) {
         let myRooms = [];
         let promises = [];
@@ -92,8 +92,21 @@ export default {
             .collection("rooms")
             .doc(room)
             .get()
-            .then((doc) => {
-              return doc.data();
+            .then(async (doc) => {
+              const modID = doc.data().modID;
+              let object = {
+                ...doc.data(),
+                id: doc.id,
+              };
+
+              await usersRef
+                .doc(modID)
+                .get()
+                .then((modDoc) => {
+                  object.mod = modDoc.data();
+                });
+
+              return object;
             });
           promises.push(promise);
         });
