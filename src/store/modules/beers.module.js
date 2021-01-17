@@ -21,6 +21,7 @@ export default {
   },
   actions: {
     searchBeers({ commit }, searchString) {
+      console.log("searchBeers");
       if (searchString === "") {
         commit("beers", []);
         return;
@@ -38,13 +39,9 @@ export default {
       return index
         .search(searchString)
         .then(async ({ hits }) => {
-          console.log(hits);
-
           let promises = [];
 
           for (const hit of hits) {
-            console.log(hit);
-
             const promise = beersRef
               .doc(hit.docID)
               .get()

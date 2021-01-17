@@ -153,6 +153,7 @@
 
 <script>
 import { db } from "@/firebase/firebase";
+import searchBeersMixin from "@/mixins/searchBeersMixin";
 
 export default {
   data() {
@@ -163,6 +164,9 @@ export default {
       name: "",
     };
   },
+
+  mixins: [searchBeersMixin],
+
   beforeMount() {
     this.$store.commit("beers", []);
   },
@@ -181,9 +185,6 @@ export default {
     },
   },
   methods: {
-    searchBeers() {
-      this.$store.dispatch("searchBeers", this.search);
-    },
     deleteFromBeerList(beer) {
       this.beerList.splice(this.beerList.indexOf(beer), 1);
     },
