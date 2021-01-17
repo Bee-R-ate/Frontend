@@ -12,13 +12,15 @@
         <div v-for="(room, i) in rooms" :key="i">
           <router-link :to="myRooms[i] ? setRoomLink(room, i) : '/moje-pokoje'">
             <v-list-item class="px-0">
-              <v-list-item-content class="pa-5">
+              <v-list-item-content class="pa-5 pb-0">
                 <div class="ellipsis">
                   <v-list-item-title
                     v-html="myRooms[i] ? myRooms[i].name : ''"
                   ></v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ myRooms[i] ? returnDate(myRooms[i].createdAt) : "" }}
+                  <v-list-item-subtitle class="room-card__timestamp">
+                    <small>
+                      {{ myRooms[i] ? returnDate(myRooms[i].createdAt) : "" }}
+                    </small>
                   </v-list-item-subtitle>
                 </div>
               </v-list-item-content>
@@ -86,30 +88,6 @@ export default {
 
     getRoomsData() {
       this.$store.dispatch("getRoomsData");
-
-      // console.log("getRoomsData");
-      //
-      // if (this.rooms.length > 0) {
-      //   let rooms = [];
-      //   let promises = [];
-      //
-      //   this.rooms.forEach(async (room) => {
-      //     let promise = db
-      //       .collection("rooms")
-      //       .doc(room)
-      //       .get()
-      //       .then((doc) => {
-      //         return doc.data();
-      //       });
-      //     promises.push(promise);
-      //   });
-      //
-      //   Promise.all(promises).then((beers) => {
-      //     rooms.push(...beers);
-      //   });
-      //
-      //   this.roomsData = rooms;
-      // }
     },
   },
   created() {
@@ -123,5 +101,10 @@ export default {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+
+.room-card__timestamp {
+  height: 20px;
+  text-align: right;
 }
 </style>

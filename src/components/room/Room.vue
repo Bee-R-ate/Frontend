@@ -1,6 +1,9 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <v-container v-if="!roomIsLoading" class="home-content position-relative friends">
+    <v-container
+      v-if="!roomIsLoading"
+      class="home-content position-relative friends"
+    >
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
