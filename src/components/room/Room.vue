@@ -15,7 +15,7 @@
           @click="editName = true"
           large
           icon
-          v-if="room.modID === user.uid"
+          v-if="room.modID == user.uid"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -31,7 +31,7 @@
         </v-btn>
       </div>
 
-      <div v-if="room.modID === user.uid && room.participants">
+      <div v-if="room.modID == user.uid && room.participants">
         <h2 class="home-title">Lista piw</h2>
         <p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
         <v-text-field
@@ -46,7 +46,7 @@
               @click="addToBeerList(beer)"
               v-if="
                 beer.name.toLowerCase().includes(search.toLowerCase()) &&
-                !room.beerList.find((b) => b.beerID === beer.id)
+                !room.beerList.find((b) => b.beerID == beer.id)
               "
             >
               <v-list-item class="px-0">
@@ -117,7 +117,7 @@
               v-if="
                 room.participants.find(
                   (participant) => friend.id == participant.userID
-                ) === undefined
+                ) == undefined
               "
             >
               <v-list-item class="px-0">
@@ -149,7 +149,7 @@
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
       <v-list class="py-0 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <v-list-item v-if="participantsData[i]" class="px-0">
+          <v-list-item class="px-0">
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
                 v-if="participantsData[i].imageURL != null"
@@ -183,11 +183,6 @@
               </div>
             </v-list-item-content>
           </v-list-item>
-          <v-progress-circular
-            v-else
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
           <v-divider v-if="i != room.participants.length - 1"></v-divider>
         </div>
       </v-list>
@@ -369,7 +364,7 @@ export default {
           .get();
         let data = { ...promise.data(), id: promise.id };
         if (
-          this.participantsData.find((userData) => userData.id == data.id) ===
+          this.participantsData.find((userData) => userData.id == data.id) ==
           undefined
         ) {
           this.participantsData.push(data);
