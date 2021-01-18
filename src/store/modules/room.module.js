@@ -93,6 +93,8 @@ export default {
             .doc(room)
             .get()
             .then(async (doc) => {
+              if (!doc.exists) return false;
+
               const modID = doc.data().modID;
               let object = {
                 ...doc.data(),
@@ -112,6 +114,13 @@ export default {
         });
 
         Promise.all(promises).then((beers) => {
+          beers.reduceRight(function (acc, item, index, object) {
+            if (!item) {
+              object.splice(index, 1);
+            }
+          }, []);
+
+          console.log(beers);
           myRooms.push(...beers);
         });
 
