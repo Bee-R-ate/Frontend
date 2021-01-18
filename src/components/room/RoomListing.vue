@@ -11,7 +11,10 @@
       <v-container v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
         <v-row>
           <v-col cols="12" sm="6" md="4" v-for="(room, i) in myRooms" :key="i">
-            <router-link :to="room ? setRoomLink(room) : '/moje-pokoje'">
+            <router-link
+              class="text-decoration-none"
+              :to="room ? setRoomLink(room) : '/moje-pokoje'"
+            >
               <v-list-item
                 class="px-0 room-card"
                 :class="{ 'room-card--inProgress': progressStatus(room) }"
@@ -26,7 +29,7 @@
                       <v-avatar
                         v-else
                         class="friend-avatar-placeholder"
-                        size="60"
+                        size="100"
                       >
                         {{ generateAvatarPlaceholder(room.mod) }}
                       </v-avatar>
@@ -63,6 +66,8 @@
 </template>
 
 <script>
+import generateAvatar from "@/mixins/avatar";
+
 export default {
   watch: {
     rooms() {
@@ -81,6 +86,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(mod) {
+      return generateAvatar(mod.name);
+    },
     returnDate(timestamp) {
       const date = timestamp.toDate();
 
@@ -147,5 +155,9 @@ export default {
 .room-card__timestamp {
   height: 20px;
   text-align: right;
+}
+
+.no-underline {
+  text-decoration: none !important;
 }
 </style>
