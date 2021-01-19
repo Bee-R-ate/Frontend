@@ -48,10 +48,12 @@
           ></v-text-field>
         </v-form>
 
-        <v-list v-if="beers.length > 0" class="py-0 friend-list">
+        <v-list v-if="beers.length > 0" class="py-0 friend-list no-background">
           <div v-for="(beer, i) in beers" :key="i">
-            <div @click="addToBeerList(beer)">
-              <v-list-item class="px-0">
+            <div
+              @click="addToBeerList(beer)"
+            >
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
                   <v-img :src="beer.photoUrl"></v-img>
                 </v-list-item-avatar>
@@ -76,10 +78,10 @@
           <v-list
             v-if="!roomBeersLoading"
             ref="beerListComponent"
-            class="py-0 mt-3 friend-list"
+            class="py-0 mt-3 friend-list no-background"
           >
             <div v-for="(beer, i) in roomBeers" :key="i">
-              <v-list-item class="px-0">
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
                   <v-img :src="beer.photoUrl"></v-img>
                 </v-list-item-avatar>
@@ -128,7 +130,10 @@
         </div>
 
         <h2 class="home-title">Zaproś graczy!</h2>
-        <v-list v-if="friends.length > 0" class="py-0 mt-3 friend-list">
+        <v-list
+          v-if="friends.length > 0"
+          class="py-0 mt-3 friend-list no-background"
+        >
           <div v-for="(friend, i) in friends" :key="i">
             <div
               @click="addParticipant(friend)"
@@ -138,7 +143,7 @@
                 ) === undefined
               "
             >
-              <v-list-item class="px-0">
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
                   <v-img
                     v-if="friend.imageURL != null"
@@ -169,9 +174,12 @@
       </div>
 
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
-      <v-list class="py-0 friend-list">
+      <v-list class="py-0 friend-list no-background">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <v-list-item v-if="participantsData[i]" class="px-0">
+          <v-list-item
+            v-if="participantsData[i]"
+            class="px-0 mb-5 bg-white card-shadow"
+          >
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
                 v-if="participantsData[i].imageURL != null"
@@ -183,7 +191,7 @@
             </v-list-item-avatar>
 
             <v-list-item-content class="position-relative">
-              <div class="pr-3 py-3 d-flex">
+              <div class="pr-1 py-3 d-flex flex-column flex-sm-row">
                 <v-list-item-title
                   v-html="participantsData[i] ? participantsData[i].name : ''"
                 ></v-list-item-title>
@@ -210,7 +218,6 @@
             indeterminate
             color="primary"
           ></v-progress-circular>
-          <v-divider v-if="i != room.participants.length - 1"></v-divider>
         </div>
       </v-list>
 
