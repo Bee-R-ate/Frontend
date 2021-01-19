@@ -37,7 +37,9 @@ export default {
       const beersRef = db.collection("beers");
 
       return index
-        .search(searchString)
+        .search(searchString, {
+          hitsPerPage: 10,
+        })
         .then(async ({ hits }) => {
           let promises = [];
 
