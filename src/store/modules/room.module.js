@@ -7,9 +7,12 @@ export default {
     roomBeers: [],
     myRooms: [],
     roomIsLoading: true,
+    roomBeersLoading: false,
   },
 
   getters: {
+    roomBeersLoading: (state) => state.roomBeersLoading,
+
     roomBeers: (state) => state.roomBeers,
 
     room: (state) => state.room,
@@ -20,6 +23,8 @@ export default {
   },
 
   mutations: {
+    setRoomBeersLoading: (state, boolean) => (state.roomBeersLoading = boolean),
+
     room: (state, room) => (state.room = room),
 
     roomIsLoading(state, boolean) {
@@ -36,51 +41,72 @@ export default {
   },
 
   actions: {
-    bindRoom: firestoreAction(({ bindFirestoreRef, commit }, roomID) => {
-      commit("roomIsLoading", true);
-      commit("loading", true);
-      const roomRef = db.collection("rooms").doc(roomID);
+    fetchBeersData({ commit }, beerList) {
+      commit("setRoomBeersLoading", true);
+
       const beersRef = db.collection("beers");
 
-      const serialize = (doc) => {
-        const data = doc.data();
+      let promises = [];
 
-        Object.defineProperty(data, "id", { value: doc.id });
-        return data;
-      };
-
-      return bindFirestoreRef("room", roomRef, { serialize }).then((room) => {
-        let promises = [];
-
-        room.beerList.forEach((beer) => {
-          const promise = beersRef
-            .doc(beer.beerID)
-            .get()
-            .then((beerDoc) => {
-              return {
-                ...beerDoc.data(),
-                id: beerDoc.id,
-              };
-            })
-            .catch((err) => {
-              console.log(err);
-              commit("setRoomBeers", []);
-              commit("roomIsLoading", false);
-              commit("loading", false);
-            });
-          promises.push(promise);
-        });
-
-        Promise.all(promises).then((beers) => {
-          commit("setRoomBeers", beers);
-          commit("roomIsLoading", false);
-          commit("loading", false);
-        });
+      beerList.forEach((beer) => {
+        const promise = beersRef
+          .doc(beer.beerID)
+          .get()
+          .then((beerDoc) => {
+            return {
+              ...beerDoc.data(),
+              id: beerDoc.id,
+            };
+          })
+          .catch((err) => {
+            console.log(err);
+            commit("setRoomBeers", []);
+            commit("setRoomBeersLoading", false);
+          });
+        promises.push(promise);
       });
-    }),
+
+      return Promise.all(promises).then((beers) => {
+        commit("setRoomBeersLoading", false);
+        commit("setRoomBeers", beers);
+      });
+    },
+
+    bindRoom: firestoreAction(
+      ({ bindFirestoreRef, dispatch, commit, rootGetters }, roomID) => {
+        commit("roomIsLoading", true);
+        commit("loading", true);
+        const roomRef = db.collection("rooms").doc(roomID);
+
+        const serialize = (doc) => {
+          const data = doc.data();
+
+          const roomBeers = rootGetters.roomBeers;
+
+          const beerListChanged =
+            roomBeers.toString() !== data.beerList.toString();
+
+          if (beerListChanged) {
+            dispatch("fetchBeersData", data.beerList);
+          }
+
+          Object.defineProperty(data, "id", { value: doc.id });
+          return data;
+        };
+
+        return bindFirestoreRef("room", roomRef, {
+          serialize,
+        }).then(async (room) => {
+          await dispatch("fetchBeersData", room.beerList);
+          commit("loading", false);
+          commit("roomIsLoading", false);
+        });
+      }
+    ),
 
     getRoomsData({ commit, rootGetters }) {
-      console.log("getRoomsData");
+      commit("loading", true);
+
       const rooms = rootGetters.user.myRooms;
       const usersRef = db.collection("users");
       if (rooms.length > 0) {
@@ -109,6 +135,10 @@ export default {
                 });
 
               return object;
+            })
+            .catch((err) => {
+              console.log(err.code);
+              commit("loading", false);
             });
           promises.push(promise);
         });
@@ -120,7 +150,6 @@ export default {
             }
           }, []);
 
-          console.log(beers);
           myRooms.push(...beers);
         });
 
@@ -128,6 +157,7 @@ export default {
           "setMyRooms",
           myRooms.sort((x, y) => x.createdAt.toDate() - y.createdAt.toDate())
         );
+        commit("loading", false);
       }
     },
   },
