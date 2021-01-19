@@ -121,19 +121,28 @@ export default {
       );
     },
     progressTitle(progress) {
-      if (progress === 1) return "W trakcie";
-      if (progress === 2) return "Zakończony";
-      return "Nierozpoczęty";
+      switch (progress) {
+        case 1:
+          return "W trakcie";
+        case 2:
+          return "Nierozpoczęty";
+        default:
+          return "Zakończony";
+      }
     },
     progressStatus(room) {
-      if (room.inProgress) return 1;
-      if (!room.inProgress && room.currentBeer !== 0) return 2;
+      if (room.ended) return 0;
+      else if (room.inProgress) return 1;
+      else if (!room.inProgress) return 2;
       return 0;
     },
     setRoomLink(room) {
       let segment = "pokoj";
-      if (room.inProgress) segment = "rozgrywka";
-      if (room.inProgress && room.currentBeer !== 0) segment = "wyniki";
+
+      if (room.ended) segment = "wyniki";
+      else if (room.inProgress) segment = "rozgrywka";
+      else if (!room.inProgress) segment = "pokoj";
+
       return `/${segment}/${room.id}`;
     },
 

@@ -6,9 +6,9 @@
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
-      <v-list v-if="room.modID == user.uid" class="py-0 my-5 friend-list">
+      <v-list v-if="room.modID === user.uid" class="py-0 my-5 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <div v-if="participant.userID != user.uid && participantsData[i]">
+          <div v-if="participant.userID !== user.uid && participantsData[i]">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
@@ -145,8 +145,7 @@ export default {
 
         if (newData.beerList) this.setBeersData();
         if (newData.participants) this.setParticipantsData();
-        if (!newData.inProgress && newData.currentBeer != 0)
-          this.$router.push(`/wyniki/${this.room.id}`);
+        if (newData.ended) this.$router.push(`/wyniki/${this.room.id}`);
       },
     },
     "room.participants"() {
@@ -158,9 +157,10 @@ export default {
           !user.isReady && !user.isEliminated ? (status = false) : true
         );
         if (status) {
-          if (this.room.currentBeer == this.room.beerList.length - 1)
+          if (this.room.currentBeer === this.room.beerList.length - 1) {
             this.calculateAverages();
-          else this.nextBeer();
+            console.log("calculate avg");
+          } else this.nextBeer();
         }
       }
     },
@@ -248,6 +248,8 @@ export default {
       this.resetScores();
     },
     nextBeer() {
+      console.log("nextBeer");
+
       this.addScores();
       this.$store.commit("loading", true);
       let currentBeer = this.room.currentBeer + 1;
@@ -278,18 +280,35 @@ export default {
       });
     },
     setParticipantsData() {
-      this.room.participants.forEach(async (participant) => {
-        let promise = await db
+      let promises = [];
+
+      this.room.participants.forEach((participant) => {
+        let promise = db
           .collection("users")
           .doc(participant.userID)
-          .get();
-        let data = { ...promise.data(), id: promise.id };
-        if (
-          this.participantsData.find((userData) => userData.id == data.id) ==
-          undefined
-        ) {
-          this.participantsData.push(data);
-        }
+          .get()
+          .then((userDoc) => {
+            return {
+              ...userDoc.data(),
+              id: userDoc.id,
+            };
+          });
+
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then((participants) => {
+        console.log(participants);
+
+        participants.forEach((participant) => {
+          if (
+            !this.participantsData.find(
+              (userData) => userData.id === participant.id
+            )
+          ) {
+            this.participantsData.push(participant);
+          }
+        });
       });
     },
     addScores() {
