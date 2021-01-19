@@ -49,6 +49,7 @@
           :loading="beersAreLoading"
         ></v-text-field>
       </v-form>
+
       <v-list v-if="beers.length > 0" class="py-0 friend-list">
         <div v-for="(beer, i) in beers" :key="i">
           <v-container>
@@ -126,7 +127,7 @@
           </v-container>
         </div>
       </v-list>
-      <div v-else>Nie masz w tej chwili piw, trochę suszy.</div>
+      <div v-else>Wyszukaj piwa bo trochę suszy.</div>
     </v-container>
   </div>
 </template>

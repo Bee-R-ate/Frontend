@@ -53,12 +53,11 @@ export default {
     display: none;
   }
 }
-@media (min-height: 670px) {
-  .home-container.home,
-  .home-container.auth {
-    align-items: center !important;
-  }
+.home-container.home,
+.home-container.auth {
+  align-items: center !important;
 }
+
 .home-container {
   min-height: 100vh;
   position: relative;
