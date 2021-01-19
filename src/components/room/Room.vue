@@ -167,6 +167,7 @@
           <router-link to="/znajomi">Kliknij, aby się uspołecznić.</router-link>
         </div>
       </div>
+
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
       <v-list class="py-0 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
@@ -396,18 +397,35 @@ export default {
       db.collection("rooms").doc(this.room.id).update({ participants });
     },
     setParticipantsData() {
-      this.room.participants.forEach(async (participant) => {
-        let promise = await db
+      let promises = [];
+
+      this.room.participants.forEach((participant) => {
+        let promise = db
           .collection("users")
           .doc(participant.userID)
-          .get();
-        let data = { ...promise.data(), id: promise.id };
-        if (
-          this.participantsData.find((userData) => userData.id == data.id) ===
-          undefined
-        ) {
-          this.participantsData.push(data);
-        }
+          .get()
+          .then((userDoc) => {
+            return {
+              ...userDoc.data(),
+              id: userDoc.id,
+            };
+          });
+
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then((participants) => {
+        console.log(participants);
+
+        participants.forEach((participant) => {
+          if (
+            !this.participantsData.find(
+              (userData) => userData.id === participant.id
+            )
+          ) {
+            this.participantsData.push(participant);
+          }
+        });
       });
     },
     editRoomName() {
@@ -433,7 +451,6 @@ export default {
         )
       )
         return;
-      this.$store.commit("loading", true);
       let participants = this.room.participants;
       participants.splice(participants.indexOf(participant), 1);
       let beerList = this.room.beerList;
@@ -452,8 +469,7 @@ export default {
         .doc(this.room.id)
         .update({ participants, beerList })
         .then(() => {
-          this.$store.commit("snackbar", "Bez niego będzie lepiej...");
-          this.$store.commit("loading", false);
+          this.$store.commit("snackbar", "Więcej dla reszty");
           db.collection("users")
             .doc(participant.userID)
             .get()
@@ -468,11 +484,9 @@ export default {
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     addParticipant(friend) {
-      this.$store.commit("loading", true);
       let beerList = this.room.beerList;
       beerList.forEach((beer) => {
         beer.userScores.push({
@@ -505,7 +519,6 @@ export default {
         .update({ participants, beerList })
         .then(() => {
           this.$store.commit("snackbar", "Dodano uczestnika!");
-          this.$store.commit("loading", false);
           db.collection("users")
             .doc(friend.id)
             .get()
@@ -517,7 +530,6 @@ export default {
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     start() {
