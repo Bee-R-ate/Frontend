@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex justify-center room-listing home-container">
-    <v-container class="home-content">
+  <div class="d-flex justify-center room-listing home-container h-100">
+    <v-container class="home-content h-100">
       <div class="back-container">
         <v-btn link to="/" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -8,8 +8,12 @@
       </div>
       <h2 class="home-title">Moje pokoje</h2>
 
-      <v-container v-if="rooms.length > 0" class="py-0 mt-3 friend-list">
-        <v-row>
+      <v-container
+        v-if="rooms.length > 0"
+        class="py-0 mt-3 friend-list"
+        style="height: 100%"
+      >
+        <v-row v-if="!myRoomsAreLoading">
           <v-col cols="12" sm="6" md="4" v-for="(room, i) in myRooms" :key="i">
             <router-link
               class="text-decoration-none"
@@ -55,6 +59,14 @@
             </router-link>
           </v-col>
         </v-row>
+        <div v-else class="progress-container">
+          <v-progress-circular
+            indeterminate
+            color="white"
+            width="10"
+            :size="100"
+          ></v-progress-circular>
+        </div>
       </v-container>
       <div class="mt-3" v-else>
         Nie masz w tej chwili pokojów. <br /><router-link to="/tworzenie-pokoju"
@@ -67,6 +79,7 @@
 
 <script>
 import generateAvatar from "@/mixins/avatar";
+import { mapGetters } from "vuex";
 
 export default {
   watch: {
@@ -75,14 +88,10 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(["myRoomsAreLoading", "myRooms", "user"]),
+
     rooms() {
       return this.$store.getters.user.myRooms;
-    },
-    myRooms() {
-      return this.$store.getters.myRooms;
-    },
-    user() {
-      return this.$store.getters.user;
     },
   },
   methods: {
