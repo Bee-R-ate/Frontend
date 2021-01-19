@@ -11,14 +11,14 @@
         <v-text-field
           class="pa-3 pb-1 mt-0 friends-search"
           color="black"
-          label="Wpisz email"
+          label="Wpisz email znajomego"
           prepend-icon="mdi-magnify"
           v-model="search"
           :rules="[rules.email]"
         ></v-text-field>
         <v-btn
           type="submit"
-          style="width: 100%"
+          style="width: 80%"
           class="mt-2 mb-3"
           color="secondary"
           :disabled="!valid"
@@ -26,36 +26,46 @@
         </v-btn>
       </v-form>
 
-      <v-list v-if="friends.length > 0" class="py-0 friend-list">
-        <div v-for="(friend, i) in friends" :key="i">
-          <v-list-item class="px-0">
-            <v-list-item-avatar :size="60" class="ml-3">
-              <v-img
-                v-if="friend.imageURL != null"
-                :src="friend.imageURL"
-              ></v-img>
-              <v-avatar v-else class="friend-avatar-placeholder" size="60">
-                {{ generateAvatarPlaceholder(friend) }}
-              </v-avatar>
-            </v-list-item-avatar>
+      <v-container
+        v-if="friends.length > 0"
+        class="py-0 friend-list no-background"
+      >
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+            v-for="(friend, i) in friends"
+            :key="i"
+          >
+            <v-list-item class="px-12 py-12 mb-5 bg-white card-shadow">
+              <v-list-item-avatar :size="60" class="ml-3">
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
+              </v-list-item-avatar>
 
-            <v-list-item-content class="position-relative">
-              <div class="pr-3 py-3">
-                <v-list-item-title v-html="friend.name"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-html="friend.email"
-                ></v-list-item-subtitle>
-              </div>
-              <div class="delete-friend-container">
-                <v-btn class="" @click="deleteFriend(friend)" icon>
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="i != friends.length - 1"></v-divider>
-        </div>
-      </v-list>
+              <v-list-item-content class="position-relative">
+                <div class="pr-3 py-3">
+                  <v-list-item-title v-html="friend.name"></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-html="friend.email"
+                  ></v-list-item-subtitle>
+                </div>
+                <div class="delete-friend-container">
+                  <v-btn class="" @click="deleteFriend(friend)" icon>
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </div>
+              </v-list-item-content>
+            </v-list-item>
+          </v-col>
+        </v-row>
+      </v-container>
       <div v-else>Nie masz w tej chwili znajomych, trochę smutek.</div>
     </div>
   </div>
@@ -100,6 +110,8 @@ export default {
 
 <style>
 .friends.home-content {
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   min-width: 50%;
 }

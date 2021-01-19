@@ -172,7 +172,7 @@
             </v-list-item-avatar>
 
             <v-list-item-content class="position-relative">
-              <div class="pr-3 py-3 d-flex">
+              <div class="pr-1 py-3 d-flex flex-column flex-sm-row">
                 <v-list-item-title
                   v-html="participantsData[i] ? participantsData[i].name : ''"
                 ></v-list-item-title>
