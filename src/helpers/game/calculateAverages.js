@@ -171,7 +171,7 @@ export default function calculateAverages(room) {
 
   db.collection("rooms")
     .doc(room.id)
-    .update({ participants, beerList, inProgress: false })
+    .update({ participants, beerList, inProgress: false, ended: true })
     .then(() => {
       store.commit("snackbar", "A o to wyniki!");
       store.commit("loading", false);
