@@ -18,10 +18,10 @@
         ></v-text-field>
       </v-form>
 
-      <v-list v-if="beers.length > 0" class="py-0 friend-list">
+      <v-list v-if="beers.length > 0" class="py-0 friend-list no-background">
         <div v-for="(beer, i) in beers" :key="i" style="cursor: pointer">
           <div @click="addToBeerList(beer)">
-            <v-list-item class="px-0">
+            <v-list-item class="px-0 mb-5 bg-white card-shadow">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img :src="beer.photoUrl"></v-img>
               </v-list-item-avatar>
@@ -30,7 +30,6 @@
                 ><div class="ellipsis">{{ beer.name }}</div></v-list-item-title
               >
             </v-list-item>
-            <v-divider v-if="i !== beers.length - 1"></v-divider>
           </div>
         </div>
       </v-list>
@@ -38,9 +37,9 @@
 
       <div v-if="beerList.length > 0">
         <h2 class="home-title">Wybrane piwa:</h2>
-        <v-list class="py-0 mt-3 friend-list">
+        <v-list class="py-0 mt-3 friend-list no-background">
           <div v-for="(beer, i) in beerList" :key="i">
-            <v-list-item class="px-0">
+            <v-list-item class="px-0 mb-5 bg-white card-shadow">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img :src="beer.photoUrl"></v-img>
               </v-list-item-avatar>
@@ -63,7 +62,6 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i !== beers.length - 1"></v-divider>
           </div>
         </v-list>
       </div>
@@ -71,13 +69,16 @@
       <h2 v-if="invitedFriends.length !== friends.length" class="home-title">
         Zaproś graczy!
       </h2>
-      <v-list v-if="friends.length > 0" class="py-0 mt-3 friend-list">
+      <v-list
+        v-if="friends.length > 0"
+        class="py-0 mt-3 friend-list no-background"
+      >
         <div v-for="(friend, i) in friends" :key="i" style="cursor: pointer">
           <div
             @click="inviteFriend(friend)"
             v-if="invitedFriends.indexOf(friend) === -1"
           >
-            <v-list-item class="px-0">
+            <v-list-item class="px-0 mb-5 bg-white card-shadow">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
                   v-if="friend.imageURL != null"
@@ -94,7 +95,6 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i !== friends.length - 1"></v-divider>
           </div>
         </div>
       </v-list>
@@ -105,9 +105,9 @@
 
       <div v-if="invitedFriends.length > 0">
         <h2 class="home-title">Lista zaproszonych graczy</h2>
-        <v-list class="py-0 mt-3 friend-list">
+        <v-list class="py-0 mt-3 friend-list no-background">
           <div v-for="(friend, i) in invitedFriends" :key="i">
-            <v-list-item class="px-0">
+            <v-list-item class="px-0 mb-5 bg-white card-shadow">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
                   v-if="friend.imageURL != null"
@@ -136,7 +136,6 @@
                 </div>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="i !== invitedFriends.length - 1"></v-divider>
           </div>
         </v-list>
       </div>
@@ -345,5 +344,14 @@ a {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.no-background {
+  background-color: #ca9b17 !important;
+}
+
+.card-shadow {
+  border-radius: 20px;
+  box-shadow: 2px 2px 2px;
 }
 </style>

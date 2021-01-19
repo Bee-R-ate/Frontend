@@ -8,36 +8,53 @@
       </div>
 
       <h2 class="home-title mb-8">{{ room.name }} wyniki</h2>
-      <v-list
+      <v-container
         v-if="room.beerList && room.beerList.length > 0"
         class="py-0 mt-3 friend-list"
       >
-        <div v-for="(beer, i) in room.beerList" :key="i">
-          <v-list-item class="px-0">
-            <v-list-item-avatar :size="160" class="ml-3">
-              <v-img :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content class="pa-5 text-left">
-              <div class="">
-                <v-list-item-title
-                  class="font-weight-bold mb-2"
-                  style="font-size: 2rem"
-                  v-html="beersData[i] ? beersData[i].name : ''"
-                ></v-list-item-title>
-                <h4 class="mb-1">Średnie piwa:</h4>
-                <p class="mb-0">Smak: {{ beer.avgTasteScore.toFixed(1) }}</p>
-                <p class="mb-0">Zapach: {{ beer.avgSmellScore.toFixed(1) }}</p>
-                <p class="mb-0">
-                  Odczucia w ustach: {{ beer.avgSensationsScore.toFixed(1) }}
-                </p>
-                <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
-                <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
-              </div>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="i != room.beerList.length - 1"></v-divider>
-        </div>
-      </v-list>
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+            v-for="(beer, i) in room.beerList"
+            :key="i"
+          >
+            <v-list-item
+              class="px-0 room-card room-card-shadow d-flex flex-column"
+            >
+              <v-list-item-avatar :size="160" class="ml-3">
+                <v-img :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
+              </v-list-item-avatar>
+              <v-list-item-content class="pa-5 text-left">
+                <div class="d-flex flex-column">
+                  <v-list-item-title
+                    class="font-weight-bold mb-2 wrap-title"
+                    style="font-size: 2rem"
+                    v-html="beersData[i] ? beersData[i].name : ''"
+                  ></v-list-item-title>
+                  <div class="ratings d-flex flex-column align-self-center">
+                    <h4 class="mb-1">Średnie piwa:</h4>
+                    <p class="mb-0">
+                      Smak: {{ beer.avgTasteScore.toFixed(1) }}
+                    </p>
+                    <p class="mb-0">
+                      Zapach: {{ beer.avgSmellScore.toFixed(1) }}
+                    </p>
+                    <p class="mb-0">
+                      Odczucia w ustach:
+                      {{ beer.avgSensationsScore.toFixed(1) }}
+                    </p>
+                    <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
+                    <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+                  </div>
+                </div>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="i != room.beerList.length - 1"></v-divider>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
   </div>
 </template>
@@ -101,3 +118,8 @@ export default {
   },
 };
 </script>
+<style>
+.ratings {
+  max-width: 176px;
+}
+</style>
