@@ -16,11 +16,11 @@
               :to="room ? setRoomLink(room) : '/moje-pokoje'"
             >
               <v-list-item
-                class="px-0 room-card"
+                class="px-0 room-card room-card-shadow"
                 :class="{ 'room-card--inProgress': progressStatus(room) }"
               >
                 <v-list-item-content class="pa-5 pb-0">
-                  <div class="room-card">
+                  <div>
                     <v-list-item-avatar :size="100" class="ml-3">
                       <v-img
                         v-if="room.mod.imageURL != null"
@@ -34,8 +34,9 @@
                         {{ generateAvatarPlaceholder(room.mod) }}
                       </v-avatar>
                     </v-list-item-avatar>
-                    <div class="ellipsis">
+                    <div>
                       <v-list-item-title
+                        class="wrap-title pb-2"
                         v-html="room ? room.name : ''"
                       ></v-list-item-title>
                       <v-list-item-subtitle>
@@ -159,5 +160,10 @@ export default {
 
 .no-underline {
   text-decoration: none !important;
+}
+
+.room-card-shadow {
+  border-radius: 40px;
+  box-shadow: 5px 5px 5px;
 }
 </style>

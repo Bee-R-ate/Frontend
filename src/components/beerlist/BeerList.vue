@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-center home-container beers">
+  <div class="home-container beers">
     <v-container class="home-content position-relative text-center friends">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/" icon>
@@ -49,10 +49,10 @@
           :loading="beersAreLoading"
         ></v-text-field>
       </v-form>
-      <v-list v-if="beers.length > 0" class="py-0 friend-list">
-        <div v-for="(beer, i) in beers" :key="i">
-          <v-container>
-            <v-list-item class="px-0">
+      <v-container v-if="beers.length > 0" class="py-0 friend-list">
+        <v-row>
+          <v-col cols="12" sm="6" md="4" v-for="(beer, i) in beers" :key="i">
+            <v-container class="bg-white beer-card">
               <v-list-item-avatar :size="160" class="ml-3">
                 <v-img v-if="editFlag !== i" :src="beer.photoUrl"></v-img>
                 <v-img v-else :src="activePhoto"></v-img>
@@ -60,25 +60,30 @@
 
               <v-list-item-content class="position-relative">
                 <div class="pr-3 py-3">
-                  <div class="text-left" v-if="editFlag !== i">
+                  <div
+                    class="text-left d-flex flex-column"
+                    v-if="editFlag !== i"
+                  >
                     <v-list-item-title
-                      class="font-weight-bold mb-2 ellipsis"
+                      class="font-weight-bold mb-2 wrap-title"
                       style="font-size: 2rem"
                       v-html="beer.name"
                     ></v-list-item-title>
-                    <h4 class="mb-1">Średnie piwa:</h4>
-                    <p class="mb-0">
-                      Smak: {{ beer.avgTasteScore.toFixed(1) }}
-                    </p>
-                    <p class="mb-0">
-                      Zapach: {{ beer.avgSmellScore.toFixed(1) }}
-                    </p>
-                    <p class="mb-0">
-                      Odczucia w ustach:
-                      {{ beer.avgSensationsScore.toFixed(1) }}
-                    </p>
-                    <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
-                    <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+                    <div class="ratings d-flex flex-column align-self-center">
+                      <h4 class="mb-2">Średnie piwa:</h4>
+                      <p class="mb-1">
+                        Smak: {{ beer.avgTasteScore.toFixed(1) }}
+                      </p>
+                      <p class="mb-1">
+                        Zapach: {{ beer.avgSmellScore.toFixed(1) }}
+                      </p>
+                      <p class="mb-1">
+                        Odczucia w ustach:
+                        {{ beer.avgSensationsScore.toFixed(1) }}
+                      </p>
+                      <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
+                      <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+                    </div>
                   </div>
 
                   <div v-else>
@@ -113,19 +118,17 @@
                 <div
                   v-if="editFlag === undefined && beer.ownerID === user.uid"
                   class="delete-friend-container"
-                >
-                  <div>
-                    <v-btn small-x class="" @click="editFlag = i" icon>
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                  </div>
-                </div>
+                ></div>
               </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="i !== beers.length - 1"></v-divider>
-          </v-container>
-        </div>
-      </v-list>
+              <div>
+                <v-btn small-x class="" @click="editFlag = i" icon>
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </div>
+            </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
       <div v-else>Nie masz w tej chwili piw, trochę suszy.</div>
     </v-container>
   </div>
@@ -209,13 +212,22 @@ export default {
   height: unset !important;
   width: unset !important;
 }
+
 .beers {
   /*overflow-y: scroll; */
 }
 
-.ellipsis {
-  white-space: nowrap !important;
+.wrap-title {
+  white-space: normal !important;
   overflow: hidden !important;
-  text-overflow: ellipsis !important;
+}
+
+.ratings {
+  max-width: 176px;
+}
+
+.beer-card {
+  border-radius: 40px;
+  box-shadow: 5px 5px 5px;
 }
 </style>
