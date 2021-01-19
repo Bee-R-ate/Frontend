@@ -8,9 +8,12 @@ export default {
     myRooms: [],
     roomIsLoading: true,
     roomBeersLoading: false,
+    myRoomsAreLoading: false,
   },
 
   getters: {
+    myRoomsAreLoading: (state) => state.myRoomsAreLoading,
+
     roomBeersLoading: (state) => state.roomBeersLoading,
 
     roomBeers: (state) => state.roomBeers,
@@ -23,6 +26,9 @@ export default {
   },
 
   mutations: {
+    setMyRoomsAreLoading: (state, boolean) =>
+      (state.myRoomsAreLoading = boolean),
+
     setRoomBeersLoading: (state, boolean) => (state.roomBeersLoading = boolean),
 
     room: (state, room) => (state.room = room),
@@ -105,7 +111,8 @@ export default {
     ),
 
     getRoomsData({ commit, rootGetters }) {
-      commit("loading", true);
+      commit("setMyRooms", []);
+      commit("setMyRoomsAreLoading", true);
 
       const rooms = rootGetters.user.myRooms;
       const usersRef = db.collection("users");
@@ -138,7 +145,8 @@ export default {
             })
             .catch((err) => {
               console.log(err.code);
-              commit("loading", false);
+              commit("setMyRoomsAreLoading", false);
+              commit("setMyRooms", []);
             });
           promises.push(promise);
         });
@@ -151,13 +159,12 @@ export default {
           }, []);
 
           myRooms.push(...beers);
+          commit(
+            "setMyRooms",
+            myRooms.sort((x, y) => y.createdAt.toDate() - x.createdAt.toDate())
+          );
+          commit("setMyRoomsAreLoading", false);
         });
-
-        commit(
-          "setMyRooms",
-          myRooms.sort((x, y) => x.createdAt.toDate() - y.createdAt.toDate())
-        );
-        commit("loading", false);
       }
     },
   },
