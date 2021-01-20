@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <v-container v-if="!roomIsLoading" class="position-relative">
+    <div v-if="!roomIsLoading" class="home-content position-relative w-100">
       <div class="back-container">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -20,19 +20,19 @@
             v-for="(beer, i) in room.beerList"
             :key="i"
           >
-            <v-list-item
-              class="px-0 room-card room-card-shadow d-flex flex-column"
+            <div
+              class="container px-0 room-card room-card-shadow d-flex flex-column"
             >
               <v-list-item-avatar :size="160" class="ml-3">
                 <v-img :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
               </v-list-item-avatar>
-              <v-list-item-content class="pa-5 text-left">
+              <div class="pa-5 text-left">
                 <div class="d-flex flex-column">
-                  <v-list-item-title
-                    class="font-weight-bold mb-2 wrap-title"
+                  <header
+                    class="font-weight-bold mb-2 wrap-title text-center"
                     style="font-size: 2rem"
                     v-html="beersData[i] ? beersData[i].name : ''"
-                  ></v-list-item-title>
+                  ></header>
                   <div class="ratings d-flex flex-column align-self-center">
                     <h4 class="mb-1">Średnie piwa:</h4>
                     <p class="mb-0">
@@ -49,13 +49,13 @@
                     <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
                   </div>
                 </div>
-              </v-list-item-content>
-            </v-list-item>
+              </div>
+            </div>
             <v-divider v-if="i != room.beerList.length - 1"></v-divider>
           </v-col>
         </v-row>
       </v-container>
-    </v-container>
+    </div>
   </div>
 </template>
 
