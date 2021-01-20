@@ -1,6 +1,10 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div v-if="!roomIsLoading && room" class="home-content position-relative">
+    <div
+      v-if="!roomIsLoading && room"
+      class="home-content position-relative"
+      style="width: 100%"
+    >
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -45,7 +49,7 @@
         <div v-if="room.currentBeer == i">
           <img
             class="beer-photo"
-            width="auto"
+            width="280px"
             height="280px"
             :src="beersData[i] ? beersData[i].photoUrl : ''"
             alt="logo bee-r-ate"
@@ -54,65 +58,73 @@
             {{ beersData[i] ? beersData[i].name : "" }}
           </h2>
 
-          <v-slider
-            class="mt-12"
-            step="1"
-            max="5"
-            v-model="appearance"
-            label="Wygląd"
-            track-color="white"
-            color="black"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="10"
-            v-model="taste"
-            label="Smak"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="10"
-            v-model="smell"
-            label="Zapach"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="5"
-            v-model="sensations"
-            label="Odczucia w ustach"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="20"
-            v-model="subjective"
-            label="Subiektywna ocena"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
+          <v-container class="d-flex flex-column">
+            <v-row class="d-flex flex-column">
+              <v-col
+                cols="12"
+                sm="10"
+                md="8"
+                class="d-flex flex-column align-self-center rating-sliders"
+              >
+                <label>Wygląd</label>
+                <v-slider
+                  step="1"
+                  max="5"
+                  v-model="appearance"
+                  track-color="white"
+                  color="black"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Smak</label>
+                <v-slider
+                  step="1"
+                  max="10"
+                  v-model="taste"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Zapach</label>
+                <v-slider
+                  step="1"
+                  max="10"
+                  v-model="smell"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Odczucia w ustach</label>
+                <v-slider
+                  step="1"
+                  max="5"
+                  v-model="sensations"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Subiektywna ocena</label>
+                <v-slider
+                  step="1"
+                  max="20"
+                  v-model="subjective"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
 
-          <v-btn
-            x-large
-            block
-            class="mt-8"
-            @click="ready"
-            :color="currentParticipant.isReady ? 'error' : 'success'"
-            >{{ currentParticipant.isReady ? "Nie gotowy" : "Gotowy" }}</v-btn
-          >
+                <v-btn
+                  x-large
+                  block
+                  class="mt-8"
+                  @click="ready"
+                  :color="currentParticipant.isReady ? 'error' : 'success'"
+                  >{{
+                    currentParticipant.isReady ? "Nie gotowy" : "Gotowy"
+                  }}</v-btn
+                >
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
       </div>
     </div>
@@ -372,5 +384,8 @@ export default {
 <style>
 .beer-photo {
   border-radius: 50%;
+  object-fit: cover;
+}
+.rating-sliders {
 }
 </style>
