@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div v-if="!roomIsLoading" class="home-content position-relative">
+    <v-container v-if="!roomIsLoading" class="position-relative">
       <div class="back-container">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -16,7 +16,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="6"
+            md="4"
             v-for="(beer, i) in room.beerList"
             :key="i"
           >
@@ -55,7 +55,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </div>
+    </v-container>
   </div>
 </template>
 
