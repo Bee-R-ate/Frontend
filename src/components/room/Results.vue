@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div class="home-content position-relative">
+    <div v-if="!roomIsLoading" class="home-content position-relative w-100">
       <div class="back-container">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -8,42 +8,60 @@
       </div>
 
       <h2 class="home-title mb-8">{{ room.name }} wyniki</h2>
-      <v-list
+      <v-container
         v-if="room.beerList && room.beerList.length > 0"
         class="py-0 mt-3 friend-list"
       >
-        <div v-for="(beer, i) in room.beerList" :key="i">
-          <v-list-item class="px-0">
-            <v-list-item-avatar :size="160" class="ml-3">
-              <v-img :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content class="pa-5 text-left">
-              <div class="">
-                <v-list-item-title
-                  class="font-weight-bold mb-2"
-                  style="font-size: 2rem"
-                  v-html="beersData[i] ? beersData[i].name : ''"
-                ></v-list-item-title>
-                <h4 class="mb-1">Średnie piwa:</h4>
-                <p class="mb-0">Smak: {{ beer.avgTasteScore.toFixed(1) }}</p>
-                <p class="mb-0">Zapach: {{ beer.avgSmellScore.toFixed(1) }}</p>
-                <p class="mb-0">
-                  Odczucia w ustach: {{ beer.avgSensationsScore.toFixed(1) }}
-                </p>
-                <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
-                <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
+            md="4"
+            v-for="(beer, i) in room.beerList"
+            :key="i"
+          >
+            <div
+              class="container px-0 room-card room-card-shadow d-flex flex-column"
+            >
+              <v-list-item-avatar :size="160" class="ml-3">
+                <v-img :src="beersData[i] ? beersData[i].photoUrl : ''"></v-img>
+              </v-list-item-avatar>
+              <div class="pa-5 text-left">
+                <div class="d-flex flex-column">
+                  <header
+                    class="font-weight-bold mb-2 wrap-title text-center"
+                    style="font-size: 2rem"
+                    v-html="beersData[i] ? beersData[i].name : ''"
+                  ></header>
+                  <div class="ratings d-flex flex-column align-self-center">
+                    <h4 class="mb-1">Średnie piwa:</h4>
+                    <p class="mb-0">
+                      Smak: {{ beer.avgTasteScore.toFixed(1) }}
+                    </p>
+                    <p class="mb-0">
+                      Zapach: {{ beer.avgSmellScore.toFixed(1) }}
+                    </p>
+                    <p class="mb-0">
+                      Odczucia w ustach:
+                      {{ beer.avgSensationsScore.toFixed(1) }}
+                    </p>
+                    <p>Wygląd: {{ beer.avgAppearanceScore.toFixed(1) }}</p>
+                    <h2>Ogółem: {{ beer.avgScore.toFixed(1) }}</h2>
+                  </div>
+                </div>
               </div>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="i != room.beerList.length - 1"></v-divider>
-        </div>
-      </v-list>
+            </div>
+            <v-divider v-if="i != room.beerList.length - 1"></v-divider>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
   </div>
 </template>
 
 <script>
 import { db } from "@/firebase/firebase";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -52,20 +70,18 @@ export default {
       participantsData: [],
     };
   },
+
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
+    ...mapGetters(["room", "roomIsLoading", "user"]),
   },
   watch: {
     room: {
       deep: true,
-      handler() {
-        if (this.room.beerList) this.setBeersData();
-        if (this.room.participants) this.setParticipantsData();
+      handler(newData) {
+        if (!newData) return;
+
+        if (newData.beerList) this.setBeersData();
+        if (newData.participants) this.setParticipantsData();
       },
     },
   },
@@ -98,7 +114,12 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>
+<style>
+.ratings {
+  max-width: 176px;
+}
+</style>

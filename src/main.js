@@ -9,7 +9,7 @@ import "./style.scss";
 
 Vue.use(firestorePlugin);
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = true;
 
 store.commit("loading", true);
 

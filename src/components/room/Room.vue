@@ -1,6 +1,9 @@
 <template>
   <div class="d-flex justify-center home-container">
-    <div class="home-content position-relative friends">
+    <v-container
+      v-if="!roomIsLoading"
+      class="home-content position-relative friends"
+    >
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -15,7 +18,7 @@
           @click="editName = true"
           large
           icon
-          v-if="room.modID == user.uid"
+          v-if="room.modID === user.uid"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -31,58 +34,63 @@
         </v-btn>
       </div>
 
-      <div v-if="room.modID == user.uid && room.participants">
+      <div v-if="room.modID === user.uid && room.participants">
         <h2 class="home-title">Lista piw</h2>
         <p class="home-subtitle">Kliknij w piwo, aby dodać je do listy!</p>
-        <v-text-field
-          color="black"
-          label="Znajdź piwo..."
-          prepend-icon="mdi-magnify"
-          v-model="search"
-        ></v-text-field>
-        <v-list v-if="beers.length > 0" class="py-0 friend-list">
+
+        <v-form @submit.prevent="searchBeers">
+          <v-text-field
+            color="black"
+            label="Znajdź piwo..."
+            prepend-icon="mdi-magnify"
+            v-model="search"
+            :loading="beersAreLoading"
+          ></v-text-field>
+        </v-form>
+
+        <v-list v-if="beers.length > 0" class="py-0 friend-list no-background">
           <div v-for="(beer, i) in beers" :key="i">
-            <div
-              @click="addToBeerList(beer)"
-              v-if="
-                beer.name.toLowerCase().includes(search.toLowerCase()) &&
-                !room.beerList.find((b) => b.beerID == beer.id)
-              "
-            >
-              <v-list-item class="px-0">
+            <div @click="addToBeerList(beer)">
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
                   <v-img :src="beer.photoUrl"></v-img>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
-                    <v-list-item-title v-html="beer.name"></v-list-item-title>
+                    <v-list-item-title
+                      ><div class="ellipsis">
+                        {{ beer.name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="i != beers.length - 1"></v-divider>
+              <v-divider v-if="i !== roomBeers.length - 1"></v-divider>
             </div>
           </div>
         </v-list>
-        <div v-else>
-          Nie masz w tej chwili piw,
-          <router-link to="/piwa">zneutralizuj suszę i dodaj piwa.</router-link>
-        </div>
 
-        <div class="mb-5" v-if="room.beerList.length > 0">
+        <div class="mb-5" v-if="roomBeers.length > 0">
           <h2 class="home-title">Wybrane piwa:</h2>
-          <v-list class="py-0 mt-3 friend-list">
-            <div v-for="(beer, i) in room.beerList" :key="i">
-              <v-list-item class="px-0">
+          <v-list
+            v-if="!roomBeersLoading"
+            ref="beerListComponent"
+            class="py-0 mt-3 friend-list no-background"
+          >
+            <div v-for="(beer, i) in roomBeers" :key="i">
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
-                  <v-img :src="getBeerData(beer).photoUrl"></v-img>
+                  <v-img :src="beer.photoUrl"></v-img>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="position-relative">
                   <div class="pr-3 py-3">
                     <v-list-item-title
-                      v-html="getBeerData(beer).name"
-                    ></v-list-item-title>
+                      ><div class="ellipsis">
+                        {{ beer.name }}
+                      </div></v-list-item-title
+                    >
                   </div>
                   <div class="delete-friend-container">
                     <div>
@@ -98,25 +106,50 @@
                   </div>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="i != beers.length - 1"></v-divider>
+              <v-divider v-if="i !== roomBeers.length - 1"></v-divider>
             </div>
           </v-list>
+          <div
+            v-else
+            class="d-flex"
+            :style="{
+              height: beerListComponentHeight,
+              'align-items': 'center',
+              'justify-content': 'center',
+            }"
+          >
+            <v-progress-circular
+              width="10"
+              :size="100"
+              color="white"
+              indeterminate
+            ></v-progress-circular>
+          </div>
         </div>
 
         <h2 class="home-title">Zaproś graczy!</h2>
-        <v-list v-if="friends.length > 0" class="py-0 mt-3 friend-list">
+        <v-list
+          v-if="friends.length > 0"
+          class="py-0 mt-3 friend-list no-background"
+        >
           <div v-for="(friend, i) in friends" :key="i">
             <div
               @click="addParticipant(friend)"
               v-if="
                 room.participants.find(
                   (participant) => friend.id == participant.userID
-                ) == undefined
+                ) === undefined
               "
             >
-              <v-list-item class="px-0">
+              <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
-                  <v-img :src="friend.imageURL"></v-img>
+                  <v-img
+                    v-if="friend.imageURL != null"
+                    :src="friend.imageURL"
+                  ></v-img>
+                  <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                    {{ generateAvatarPlaceholder(friend) }}
+                  </v-avatar>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="position-relative">
@@ -125,27 +158,38 @@
                   </div>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="i != friends.length - 1"></v-divider>
+              <v-divider v-if="i !== friends.length - 1"></v-divider>
             </div>
           </div>
         </v-list>
-        <div class="mt-3" v-if="friends.length == room.participants.length - 1">
+        <div
+          class="mt-3"
+          v-if="friends.length === room.participants.length - 1"
+        >
           Nie masz w więcej znajomych.
           <router-link to="/znajomi">Kliknij, aby się uspołecznić.</router-link>
         </div>
       </div>
+
       <h2 class="home-title mt-5 mb-2">Lista graczy</h2>
-      <v-list class="py-0 friend-list">
+      <v-list class="py-0 friend-list no-background">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <v-list-item class="px-0">
+          <v-list-item
+            v-if="participantsData[i]"
+            class="px-0 mb-5 bg-white card-shadow"
+          >
             <v-list-item-avatar :size="60" class="ml-3">
               <v-img
+                v-if="participantsData[i].imageURL != null"
                 :src="participantsData[i] ? participantsData[i].imageURL : ''"
               ></v-img>
+              <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                {{ generateAvatarPlaceholder(participantsData[i]) }}
+              </v-avatar>
             </v-list-item-avatar>
 
             <v-list-item-content class="position-relative">
-              <div class="pr-3 py-3 d-flex">
+              <div class="pr-1 py-3 d-flex flex-column flex-sm-row">
                 <v-list-item-title
                   v-html="participantsData[i] ? participantsData[i].name : ''"
                 ></v-list-item-title>
@@ -158,7 +202,7 @@
                   @click="kickParticipant(participant, i)"
                   class="ml-2"
                   v-if="
-                    room.modID == user.uid && participant.userID != user.uid
+                    room.modID === user.uid && participant.userID !== user.uid
                   "
                   icon
                 >
@@ -167,16 +211,19 @@
               </div>
             </v-list-item-content>
           </v-list-item>
-          <v-divider v-if="i != room.participants.length - 1"></v-divider>
+          <v-progress-circular
+            v-else
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
         </div>
       </v-list>
 
       <v-btn
-        :disabled="mod == undefined ? true : mod.isReady"
         class="mt-5"
-        color="success"
+        :color="mod.isReady ? 'error' : 'success'"
         @click="ready"
-        >Zgłoś gotowość!</v-btn
+        >{{ mod.isReady ? "Nie gotowy" : "Zgłoś gotowość" }}!</v-btn
       >
 
       <v-btn
@@ -192,12 +239,15 @@
         "
         >Rozpocznij debatę!</v-btn
       >
-    </div>
+    </v-container>
   </div>
 </template>
 
 <script>
 import { db } from "@/firebase/firebase";
+import { mapGetters } from "vuex";
+import searchBeersMixin from "@/mixins/searchBeersMixin";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -206,40 +256,48 @@ export default {
       editName: false,
       newUser: "",
       search: "",
+      beerListComponentHeight: 0,
     };
   },
+
+  mixins: [searchBeersMixin],
+
   watch: {
     "room.participants"() {
+      if (!this.room) return;
       if (this.room.participants) this.setParticipantsData();
     },
     room: {
       deep: true,
-      handler() {
+      handler(newData) {
+        if (!newData) return;
+
         if (
-          this.room.participants &&
-          !this.room.participants.find(
-            (participant) => participant.userID == this.user.uid
+          newData.participants &&
+          !newData.participants.find(
+            (participant) => participant.userID === this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
           this.$router.push("/");
         }
-        if (this.room.inProgress) {
-          this.$router.push(`/rozgrywka/${this.room.id}`);
+        if (newData.inProgress) {
+          this.$router.push(`/rozgrywka/${newData.id}`);
         }
       },
     },
   },
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
-    beers() {
-      return this.$store.getters.beers;
-    },
+    ...mapGetters([
+      "room",
+      "roomIsLoading",
+      "user",
+      "beers",
+      "roomBeers",
+      "beersAreLoading",
+      "roomBeersLoading",
+    ]),
+
     mod() {
       return this.room.participants == undefined
         ? {}
@@ -252,11 +310,22 @@ export default {
     },
   },
   methods: {
-    getBeerData(beer) {
-      return this.beers.find((b) => b.id == beer.beerID);
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
     },
     addToBeerList(beer) {
-      this.$store.commit("loading", true);
+      if (this.roomBeers.some((addedBeer) => addedBeer.id === beer.id)) {
+        this.$store.commit("snackbar", "To piwo jest już na liście");
+        return;
+      }
+
+      if (this.$refs.beerListComponent) {
+        this.beerListComponentHeight =
+          this.$refs.beerListComponent.$el.clientHeight + "px";
+      }
+
+      this.$store.commit("setRoomBeersLoading", true);
+
       let beerList = this.room.beerList;
       let userScores = [];
       this.room.participants.forEach((participant) => {
@@ -287,21 +356,18 @@ export default {
         .update({ beerList })
         .then(() => {
           this.$store.commit("snackbar", "Pomyślnie dodano do listy piw!");
-          this.$store.commit("loading", false);
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     deleteFromBeerList(beer) {
-      if (
-        !confirm(
-          `Czy na pewno usunąć piwo ${this.getBeerData(beer).name} z listy?`
-        )
-      )
-        return;
-      this.$store.commit("loading", true);
+      if (this.$refs.beerListComponent) {
+        this.beerListComponentHeight =
+          this.$refs.beerListComponent.$el.clientHeight + "px";
+      }
+
+      this.$store.commit("setRoomBeersLoading", true);
 
       let beerList = this.room.beerList;
       beerList.splice(beerList.indexOf(beer), 1);
@@ -310,37 +376,61 @@ export default {
         .update({ beerList })
         .then(() => {
           this.$store.commit("snackbar", "Pomyślnie usunięto z listy piw!");
-          this.$store.commit("loading", false);
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     ready() {
       let participants = this.room.participants;
+      let status =
+        participants[
+          participants.indexOf(
+            participants.find(
+              (participant) => participant.userID == this.user.uid
+            )
+          )
+        ].isReady;
       participants[
         participants.indexOf(
           participants.find(
             (participant) => participant.userID == this.user.uid
           )
         )
-      ].isReady = true;
+      ].isReady = !status;
+
       db.collection("rooms").doc(this.room.id).update({ participants });
     },
     setParticipantsData() {
-      this.room.participants.forEach(async (participant) => {
-        let promise = await db
+      let promises = [];
+
+      this.room.participants.forEach((participant) => {
+        let promise = db
           .collection("users")
           .doc(participant.userID)
-          .get();
-        let data = { ...promise.data(), id: promise.id };
-        if (
-          this.participantsData.find((userData) => userData.id == data.id) ==
-          undefined
-        ) {
-          this.participantsData.push(data);
-        }
+          .get()
+          .then((userDoc) => {
+            return {
+              ...userDoc.data(),
+              id: userDoc.id,
+            };
+          });
+
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then((participants) => {
+        console.log(participants);
+
+        participants.forEach((participant) => {
+          if (
+            !this.participantsData.find(
+              (userData) => userData.id === participant.id
+            )
+          ) {
+            this.participantsData.push(participant);
+          }
+        });
       });
     },
     editRoomName() {
@@ -366,7 +456,6 @@ export default {
         )
       )
         return;
-      this.$store.commit("loading", true);
       let participants = this.room.participants;
       participants.splice(participants.indexOf(participant), 1);
       let beerList = this.room.beerList;
@@ -385,8 +474,7 @@ export default {
         .doc(this.room.id)
         .update({ participants, beerList })
         .then(() => {
-          this.$store.commit("snackbar", "Bez niego będzie lepiej...");
-          this.$store.commit("loading", false);
+          this.$store.commit("snackbar", "Więcej dla reszty");
           db.collection("users")
             .doc(participant.userID)
             .get()
@@ -401,11 +489,9 @@ export default {
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     addParticipant(friend) {
-      this.$store.commit("loading", true);
       let beerList = this.room.beerList;
       beerList.forEach((beer) => {
         beer.userScores.push({
@@ -438,7 +524,6 @@ export default {
         .update({ participants, beerList })
         .then(() => {
           this.$store.commit("snackbar", "Dodano uczestnika!");
-          this.$store.commit("loading", false);
           db.collection("users")
             .doc(friend.id)
             .get()
@@ -450,7 +535,6 @@ export default {
         })
         .catch(() => {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
-          this.$store.commit("loading", false);
         });
     },
     start() {
@@ -471,7 +555,19 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>
+
+<style>
+html {
+  word-break: break-word !important;
+}
+
+.ellipsis {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+</style>

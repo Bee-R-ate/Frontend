@@ -1,19 +1,27 @@
 <template>
   <div class="d-flex justify-center home home-container">
-    <div class="home-content position-relative">
+    <div
+      v-if="!roomIsLoading && room"
+      class="home-content position-relative"
+      style="width: 100%"
+    >
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
         </v-btn>
       </div>
-      <v-list v-if="room.modID == user.uid" class="py-0 my-5 friend-list">
+      <v-list v-if="room.modID === user.uid" class="py-0 my-5 friend-list">
         <div v-for="(participant, i) in room.participants" :key="i">
-          <div v-if="participant.userID != user.uid">
+          <div v-if="participant.userID !== user.uid && participantsData[i]">
             <v-list-item class="px-0">
               <v-list-item-avatar :size="60" class="ml-3">
                 <v-img
+                  v-if="participantsData[i].imageURL != null"
                   :src="participantsData[i] ? participantsData[i].imageURL : ''"
                 ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(participantsData[i]) }}
+                </v-avatar>
               </v-list-item-avatar>
 
               <v-list-item-content class="position-relative">
@@ -41,7 +49,7 @@
         <div v-if="room.currentBeer == i">
           <img
             class="beer-photo"
-            width="auto"
+            width="280px"
             height="280px"
             :src="beersData[i] ? beersData[i].photoUrl : ''"
             alt="logo bee-r-ate"
@@ -50,66 +58,73 @@
             {{ beersData[i] ? beersData[i].name : "" }}
           </h2>
 
-          <v-slider
-            class="mt-12"
-            step="1"
-            max="5"
-            v-model="appearance"
-            label="Wygląd"
-            track-color="white"
-            color="black"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="10"
-            v-model="taste"
-            label="Smak"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="10"
-            v-model="smell"
-            label="Zapach"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="5"
-            v-model="sensations"
-            label="Odczucia w ustach"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
-          <v-slider
-            class="mt-10"
-            step="1"
-            max="20"
-            v-model="subjective"
-            label="Subiektywna ocena"
-            color="black"
-            track-color="white"
-            thumb-label="always"
-          ></v-slider>
+          <v-container class="d-flex flex-column">
+            <v-row class="d-flex flex-column">
+              <v-col
+                cols="12"
+                sm="10"
+                md="8"
+                class="d-flex flex-column align-self-center rating-sliders"
+              >
+                <label>Wygląd</label>
+                <v-slider
+                  step="1"
+                  max="5"
+                  v-model="appearance"
+                  track-color="white"
+                  color="black"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Smak</label>
+                <v-slider
+                  step="1"
+                  max="10"
+                  v-model="taste"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Zapach</label>
+                <v-slider
+                  step="1"
+                  max="10"
+                  v-model="smell"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Odczucia w ustach</label>
+                <v-slider
+                  step="1"
+                  max="5"
+                  v-model="sensations"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
+                <label class="mt-5">Subiektywna ocena</label>
+                <v-slider
+                  step="1"
+                  max="20"
+                  v-model="subjective"
+                  color="black"
+                  track-color="white"
+                  thumb-label="always"
+                ></v-slider>
 
-          <v-btn
-            x-large
-            block
-            class="mt-8"
-            @click="ready"
-            :disabled="currentParticipant ? currentParticipant.isReady : true"
-            color="success"
-            >Gotowy</v-btn
-          >
+                <v-btn
+                  x-large
+                  block
+                  class="mt-8"
+                  @click="ready"
+                  :color="currentParticipant.isReady ? 'error' : 'success'"
+                  >{{
+                    currentParticipant.isReady ? "Nie gotowy" : "Gotowy"
+                  }}</v-btn
+                >
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
       </div>
     </div>
@@ -119,6 +134,8 @@
 <script>
 import { db } from "@/firebase/firebase";
 import averages from "@/helpers/game/calculateAverages";
+import { mapGetters } from "vuex";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
@@ -135,41 +152,47 @@ export default {
   watch: {
     room: {
       deep: true,
-      handler() {
-        if (this.room.beerList) this.setBeersData();
-        if (this.room.participants) this.setParticipantsData();
-        if (!this.room.inProgress && this.room.currentBeer != 0)
-          this.$router.push(`/wyniki/${this.room.id}`);
+      handler(newData) {
+        if (!newData) return;
+
+        if (newData.beerList) this.setBeersData();
+        if (newData.participants) this.setParticipantsData();
+        if (newData.ended) this.$router.push(`/wyniki/${this.room.id}`);
       },
     },
     "room.participants"() {
+      if (!this.room) return;
+
       if (this.room.participants) {
         let status = true;
         this.room.participants.forEach((user) =>
           !user.isReady && !user.isEliminated ? (status = false) : true
         );
         if (status) {
-          if (this.room.currentBeer == this.room.beerList.length - 1)
+          if (this.room.currentBeer === this.room.beerList.length - 1) {
             this.calculateAverages();
-          else this.nextBeer();
+            console.log("calculate avg");
+          } else this.nextBeer();
         }
       }
     },
-    currentParticipant() {
-      if (this.currentParticipant && this.currentParticipant.isEliminated) {
-        this.$store.commit("snackbar", "Przykro mi, zostałeś wyeliminowany!");
-        this.$router.push("/");
-      }
+    currentParticipant: {
+      handler(newData) {
+        console.log(this.room);
+        if (!this.room) return;
+
+        if (newData && newData.isEliminated) {
+          this.$store.commit("snackbar", "Przykro mi, zostałeś wyeliminowany!");
+          this.$router.push("/");
+        }
+      },
     },
   },
   computed: {
-    room() {
-      return this.$store.getters.room;
-    },
-    user() {
-      return this.$store.getters.user;
-    },
+    ...mapGetters(["room", "roomIsLoading", "user", "roomBeers"]),
+
     currentParticipant() {
+      if (!this.room) return;
       return this.room.participants
         ? this.room.participants.find(
             (participant) => participant.userID == this.user.uid
@@ -178,6 +201,9 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     eliminate(participant, i) {
       if (participant.isEliminated) return;
       if (
@@ -234,6 +260,8 @@ export default {
       this.resetScores();
     },
     nextBeer() {
+      console.log("nextBeer");
+
       this.$store.commit("loading", true);
       let currentBeer = this.room.currentBeer + 1;
       let participants = this.room.participants;
@@ -263,31 +291,38 @@ export default {
       });
     },
     setParticipantsData() {
-      this.room.participants.forEach(async (participant) => {
-        let promise = await db
+      let promises = [];
+
+      this.room.participants.forEach((participant) => {
+        let promise = db
           .collection("users")
           .doc(participant.userID)
-          .get();
-        let data = { ...promise.data(), id: promise.id };
-        if (
-          this.participantsData.find((userData) => userData.id == data.id) ==
-          undefined
-        ) {
-          this.participantsData.push(data);
-        }
+          .get()
+          .then((userDoc) => {
+            return {
+              ...userDoc.data(),
+              id: userDoc.id,
+            };
+          });
+
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then((participants) => {
+        console.log(participants);
+
+        participants.forEach((participant) => {
+          if (
+            !this.participantsData.find(
+              (userData) => userData.id === participant.id
+            )
+          ) {
+            this.participantsData.push(participant);
+          }
+        });
       });
     },
-    ready() {
-      this.$store.commit("loading", true);
-      let participants = this.room.participants;
-      participants[
-        participants.indexOf(
-          participants.find(
-            (participant) => participant.userID == this.user.uid
-          )
-        )
-      ].isReady = true;
-
+    addScores() {
       let beerList = this.room.beerList;
       let userScores = beerList[this.room.currentBeer].userScores;
       let userScoreIndex = userScores.indexOf(
@@ -308,7 +343,7 @@ export default {
 
       db.collection("rooms")
         .doc(this.room.id)
-        .update({ participants, beerList })
+        .update({ beerList })
         .then(() => {
           this.$store.commit("snackbar", "Zgłosiłeś gotowość!");
           this.$store.commit("loading", false);
@@ -318,9 +353,31 @@ export default {
           this.$store.commit("loading", false);
         });
     },
+    ready() {
+      this.addScores();
+
+      let participants = this.room.participants;
+      let status =
+        participants[
+          participants.indexOf(
+            participants.find(
+              (participant) => participant.userID == this.user.uid
+            )
+          )
+        ].isReady;
+
+      participants[
+        participants.indexOf(
+          participants.find(
+            (participant) => participant.userID == this.user.uid
+          )
+        )
+      ].isReady = !status;
+      db.collection("rooms").doc(this.room.id).update({ participants });
+    },
   },
   created() {
-    this.$store.dispatch("room", this.$route.params.id);
+    this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
 </script>
@@ -328,5 +385,8 @@ export default {
 <style>
 .beer-photo {
   border-radius: 50%;
+  object-fit: cover;
+}
+.rating-sliders {
 }
 </style>

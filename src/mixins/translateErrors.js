@@ -1,4 +1,5 @@
 export default function translateErrors(errCode) {
+  console.log(errCode);
   switch (errCode.toString()) {
     case "auth/user-not-found": {
       return "Nie znaleziono użytkownika";

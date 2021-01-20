@@ -7,58 +7,81 @@
         </v-btn>
       </div>
       <h2 class="home-title mt-2">Moi znajomi</h2>
-      <v-text-field
-        class="pa-3 pb-1 mt-0 friends-search"
-        color="black"
-        label="Wpisz email"
-        prepend-icon="mdi-magnify"
-        v-model="search"
-      ></v-text-field>
-      <v-btn
-        style="width: 100%"
-        @click="addFriend"
-        class="mt-2 mb-3"
-        color="secondary"
-        >Dodaj znajomych!
-      </v-btn>
+      <v-form v-model="valid" ref="form" @submit.prevent="addFriend">
+        <v-text-field
+          class="pa-3 pb-1 mt-0 friends-search"
+          color="black"
+          label="Wpisz email znajomego"
+          prepend-icon="mdi-magnify"
+          v-model="search"
+          :rules="[rules.email]"
+        ></v-text-field>
+        <v-btn
+          type="submit"
+          style="width: 80%"
+          class="mt-2 mb-3"
+          color="secondary"
+          :disabled="!valid"
+          >Dodaj znajomych!
+        </v-btn>
+      </v-form>
 
-      <v-list v-if="friends.length > 0" class="py-0 friend-list">
-        <div v-for="(friend, i) in friends" :key="i">
-          <v-list-item class="px-0">
-            <v-list-item-avatar :size="60" class="ml-3">
-              <v-img :src="friend.imageURL"></v-img>
-            </v-list-item-avatar>
+      <v-container
+        v-if="friends.length > 0"
+        class="py-0 friend-list no-background"
+      >
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+            v-for="(friend, i) in friends"
+            :key="i"
+          >
+            <v-list-item class="px-12 py-12 mb-5 bg-white card-shadow">
+              <v-list-item-avatar :size="60" class="ml-3">
+                <v-img
+                  v-if="friend.imageURL != null"
+                  :src="friend.imageURL"
+                ></v-img>
+                <v-avatar v-else class="friend-avatar-placeholder" size="60">
+                  {{ generateAvatarPlaceholder(friend) }}
+                </v-avatar>
+              </v-list-item-avatar>
 
-            <v-list-item-content class="position-relative">
-              <div class="pr-3 py-3">
-                <v-list-item-title v-html="friend.name"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-html="friend.email"
-                ></v-list-item-subtitle>
-              </div>
-              <div class="delete-friend-container">
-                <v-btn class="" @click="deleteFriend(friend)" icon>
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="i != friends.length - 1"></v-divider>
-        </div>
-      </v-list>
+              <v-list-item-content class="position-relative">
+                <div class="pr-3 py-3">
+                  <v-list-item-title v-html="friend.name"></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-html="friend.email"
+                  ></v-list-item-subtitle>
+                </div>
+                <div class="delete-friend-container">
+                  <v-btn class="" @click="deleteFriend(friend)" icon>
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </div>
+              </v-list-item-content>
+            </v-list-item>
+          </v-col>
+        </v-row>
+      </v-container>
       <div v-else>Nie masz w tej chwili znajomych, trochę smutek.</div>
     </div>
   </div>
 </template>
 
 <script>
-import { db } from "@/firebase/firebase";
+import rules from "@/helpers/validation/rules";
+import generateAvatar from "@/mixins/avatar";
 
 export default {
   data() {
     return {
       search: "",
       select: "",
+      valid: true,
+      rules,
     };
   },
   computed: {
@@ -70,73 +93,16 @@ export default {
     },
   },
   methods: {
+    generateAvatarPlaceholder(friend) {
+      return generateAvatar(friend.name);
+    },
     itemText: (item) => item.Email,
     addFriend() {
-      if (
-        this.search.toLowerCase() ==
-        this.$store.getters.user.email.toLowerCase()
-      ) {
-        this.$store.commit(
-          "snackbar",
-          "Myślałem, że brak znajomych to smutek, ale zapraszanie samego siebie... ;)"
-        );
-        return;
-      }
-      this.$store.commit("loading", true);
-      db.collection("users")
-        .where("email", "==", this.search.toLowerCase())
-        .limit(1)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            if (!this.user.friends.includes(doc.id)) {
-              this.user.friends.push(doc.id);
-              db.collection("users")
-                .doc(this.user.uid)
-                .update({ friends: this.user.friends })
-                .then(() => {
-                  this.$store.commit("snackbar", "To teraz piwko!");
-                  this.$store.commit("loading", false);
-                  this.search = "";
-                });
-              let friends = doc.data().friends;
-              friends.push(this.user.uid);
-              db.collection("users").doc(doc.id).update({ friends: friends });
-              this.$store.dispatch("friends");
-            } else {
-              this.$store.commit("loading", false);
-              this.$store.commit(
-                "snackbar",
-                "Już masz tego znajomego. Dodanie go drugi raz nie sprawi, że będzie Cię lubił bardziej..."
-              );
-            }
-          });
-        });
+      this.$store.dispatch("addFriend", this.search);
     },
-    async deleteFriend(friend) {
-      if (!confirm(`Czy na pewno chcesz usunąć kolegę ${friend.name}?`)) return;
-      await db
-        .collection("users")
-        .doc(friend.id)
-        .onSnapshot((doc) => {
-          let friendFriends = doc.data().friends;
-          friendFriends.splice(friendFriends.indexOf(this.user.uid), 1);
-          db.collection("users")
-            .doc(friend.id)
-            .update({ friends: friendFriends });
-        });
-
-      let myFriends = this.user.friends;
-      myFriends.splice(myFriends.indexOf(friend.id), 1);
-
-      await db
-        .collection("users")
-        .doc(this.user.uid)
-        .update({ friends: myFriends })
-        .then(() => {
-          this.$store.commit("snackbar", "Przykro, że się nie dogadaliście...");
-          this.$store.dispatch("friends");
-        });
+    deleteFriend(friend) {
+      console.log("delete friend");
+      this.$store.dispatch("deleteFriend", friend);
     },
   },
 };
@@ -144,6 +110,8 @@ export default {
 
 <style>
 .friends.home-content {
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   min-width: 50%;
 }
@@ -164,5 +132,11 @@ export default {
 
 .friend-list {
   min-width: 50%;
+}
+
+.friend-avatar-placeholder {
+  color: white;
+  font-size: 32px;
+  background-color: #804600;
 }
 </style>
