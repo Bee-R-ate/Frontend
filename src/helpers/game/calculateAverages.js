@@ -1,5 +1,6 @@
 import store from "@/store/store";
 import { db } from "@/firebase/firebase";
+import firebase from "firebase/app";
 
 export default function calculateAverages(room) {
   store.commit("loading", true);
@@ -43,22 +44,45 @@ export default function calculateAverages(room) {
     beer.avgSubjectiveScore = avgSubjectiveScore();
     beer.avgTasteScore = avgTasteScore();
 
-    db.collection("beers")
-      .doc(beer.beerID)
-      .get()
-      .then((doc) => {
-        let beerDoc = doc.data();
-        beerDoc.avgAppearanceScore =
-          (avgAppearanceScore() + beerDoc.avgAppearanceScore) / 2;
-        beerDoc.avgScore = (avgScore() + beerDoc.avgScore) / 2;
-        beerDoc.avgSensationsScore =
-          (avgSensationsScore() + beerDoc.avgSensationsScore) / 2;
-        beerDoc.avgSmellScore = (avgSmellScore() + beerDoc.avgSmellScore) / 2;
-        beerDoc.avgSubjectiveScore =
-          (avgSubjectiveScore() + beerDoc.avgSubjectiveScore) / 2;
-        beerDoc.avgTasteScore = (avgTasteScore() + beerDoc.avgTasteScore) / 2;
-        db.collection("beers").doc(beer.beerID).update(beerDoc);
-      });
+    if (room.modID === store.getters.user.uid) {
+      db.collection("beers")
+        .doc(beer.beerID)
+        .get()
+        .then((beerDoc) => {
+          let data = beerDoc.data();
+
+          data.avgAppearanceScore =
+            (avgAppearanceScore() +
+              data.avgAppearanceScore * data.averageCount) /
+            (data.averageCount + 1);
+          data.avgScore =
+            (avgScore() + data.avgScore * data.averageCount) /
+            (data.averageCount + 1);
+          data.avgSensationsScore =
+            (avgSensationsScore() +
+              data.avgSensationsScore * data.averageCount) /
+            (data.averageCount + 1);
+          data.avgSmellScore =
+            (avgSmellScore() + data.avgSmellScore * data.averageCount) /
+            (data.averageCount + 1);
+          data.avgSubjectiveScore =
+            (avgSubjectiveScore() +
+              data.avgSubjectiveScore * data.averageCount) /
+            (data.averageCount + 1);
+          data.avgTasteScore =
+            (avgTasteScore() + data.avgTasteScore * data.averageCount) /
+            (data.averageCount + 1);
+
+          console.log(data);
+
+          db.collection("beers")
+            .doc(beer.beerID)
+            .update({
+              ...data,
+              averageCount: firebase.firestore.FieldValue.increment(1),
+            });
+        });
+    }
   });
 
   let participants = room.participants;
