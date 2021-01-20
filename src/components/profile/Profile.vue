@@ -233,7 +233,7 @@ export default {
   /*overflow-y: scroll;*/
 }
 .profile-photo {
-  max-width: 150px;
+  width: 150px;
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
