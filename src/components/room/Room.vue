@@ -50,9 +50,7 @@
 
         <v-list v-if="beers.length > 0" class="py-0 friend-list no-background">
           <div v-for="(beer, i) in beers" :key="i">
-            <div
-              @click="addToBeerList(beer)"
-            >
+            <div @click="addToBeerList(beer)">
               <v-list-item class="px-0 mb-5 bg-white card-shadow">
                 <v-list-item-avatar :size="60" class="ml-3">
                   <v-img :src="beer.photoUrl"></v-img>
