@@ -262,7 +262,6 @@ export default {
     nextBeer() {
       console.log("nextBeer");
 
-      this.addScores();
       this.$store.commit("loading", true);
       let currentBeer = this.room.currentBeer + 1;
       let participants = this.room.participants;
@@ -355,6 +354,8 @@ export default {
         });
     },
     ready() {
+      this.addScores();
+
       let participants = this.room.participants;
       let status =
         participants[
