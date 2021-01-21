@@ -2,7 +2,7 @@ import store from "@/store/store";
 import { db } from "@/firebase/firebase";
 import firebase from "firebase/app";
 
-export default function calculateAverages(room) {
+export default async function calculateAverages(room) {
   store.commit("loading", true);
 
   let beerList = room.beerList;
@@ -193,10 +193,14 @@ export default function calculateAverages(room) {
     }
   });
 
-  db.collection("rooms")
+  console.log(room.id);
+
+  await db
+    .collection("rooms")
     .doc(room.id)
     .update({ participants, beerList, inProgress: false, ended: true })
     .then(() => {
+      console.log("ended");
       store.commit("snackbar", "A o to wyniki!");
       store.commit("loading", false);
     })

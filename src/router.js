@@ -129,6 +129,8 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  console.log(to.path);
+
   if (to.matched.some((record) => record.meta.logged)) {
     if (store.getters.user.uid) {
       next();

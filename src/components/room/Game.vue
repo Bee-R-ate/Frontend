@@ -1,10 +1,6 @@
 <template>
-  <div class="d-flex justify-center home home-container">
-    <div
-      v-if="!roomIsLoading && room"
-      class="home-content position-relative"
-      style="width: 100%"
-    >
+  <div v-if="!roomIsLoading" class="d-flex justify-center home home-container">
+    <div class="home-content position-relative" style="width: 100%">
       <div class="back-container" style="top: -2%">
         <v-btn link to="/moje-pokoje" icon>
           <v-icon>mdi-arrow-left-circle</v-icon>
@@ -153,22 +149,32 @@ export default {
     room: {
       deep: true,
       handler(newData) {
-        if (!newData) return;
+        console.log(this.room);
+        if (!this.room) return;
 
         if (newData.beerList) this.setBeersData();
-        if (newData.participants) this.setParticipantsData();
-        if (newData.ended) this.$router.push(`/wyniki/${this.room.id}`);
+
+        // if (this.room.participants) this.setParticipantsData();
+        if (this.room && this.room.ended) {
+          this.$router.push(`/wyniki/${this.room.id}`);
+        }
       },
     },
     "room.participants"() {
+      console.log(this.room);
       if (!this.room) return;
 
-      if (this.room.participants) {
+      console.log("room in progress: " + this.room.inProgress);
+
+      if (this.room.inProgress && this.room.participants) {
         let status = true;
-        this.room.participants.forEach((user) =>
-          !user.isReady && !user.isEliminated ? (status = false) : true
-        );
+        this.room.participants.forEach((user, index) => {
+          console.log(status);
+          console.log(index + " ---> " + user.isReady);
+          !user.isReady && !user.isEliminated ? (status = false) : true;
+        });
         if (status) {
+          console.log("status: " + status);
           if (this.room.currentBeer === this.room.beerList.length - 1) {
             this.calculateAverages();
             console.log("calculate avg");
@@ -177,11 +183,11 @@ export default {
       }
     },
     currentParticipant: {
-      handler(newData) {
+      handler() {
         console.log(this.room);
         if (!this.room) return;
 
-        if (newData && newData.isEliminated) {
+        if (this.room && this.room.isEliminated) {
           this.$store.commit("snackbar", "Przykro mi, zostałeś wyeliminowany!");
           this.$router.push("/");
         }
@@ -189,9 +195,17 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["room", "roomIsLoading", "user", "roomBeers"]),
+    ...mapGetters([
+      "room",
+      "roomIsLoading",
+      "user",
+      "roomBeers",
+      "participantsData",
+    ]),
 
     currentParticipant() {
+      console.log("currentParticipant");
+
       if (!this.room) return;
       return this.room.participants
         ? this.room.participants.find(
@@ -270,6 +284,7 @@ export default {
         .doc(this.room.id)
         .update({ currentBeer, participants })
         .then(() => {
+          console.log("next beer fin");
           this.$store.commit("snackbar", "Kolejne piwo!");
           this.$store.commit("loading", false);
           this.resetScores();
@@ -341,10 +356,12 @@ export default {
           this.taste) /
         5;
 
-      db.collection("rooms")
+      return db
+        .collection("rooms")
         .doc(this.room.id)
         .update({ beerList })
         .then(() => {
+          console.log("addScores fin");
           this.$store.commit("snackbar", "Zgłosiłeś gotowość!");
           this.$store.commit("loading", false);
         })
@@ -353,8 +370,8 @@ export default {
           this.$store.commit("loading", false);
         });
     },
-    ready() {
-      this.addScores();
+    async ready() {
+      await this.addScores();
 
       let participants = this.room.participants;
       let status =
@@ -377,6 +394,7 @@ export default {
     },
   },
   created() {
+    console.log("created");
     this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };
