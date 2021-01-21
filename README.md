@@ -1,5 +1,7 @@
 # bee-r-ate
 
+https://bee-r-ate.web.app/
+
 ## Commit etiquette
 
 ENGLISH DO YOU SPEAK IT!
