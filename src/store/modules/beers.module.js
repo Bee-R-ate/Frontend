@@ -83,17 +83,6 @@ export default {
       commit("loading", true);
 
       const uid = rootGetters.user.uid;
-      //ten kod będzie usunięty po wprowadzeniu algolii
-      const beers = rootGetters.beers;
-
-      if (beers.find((beer) => beer.name === name)) {
-        commit(
-          "snackbar",
-          "Wiem, że bardzo je lubisz, ale takie piwo jest już na liście..."
-        );
-        return;
-      }
-      //.ten kod będzie usunięty po wprowadzeniu algolii
 
       return db
         .collection("beers")
@@ -107,6 +96,7 @@ export default {
           avgSubjectiveScore: 0,
           avgScore: 0,
           ownerID: uid,
+          averageCount: 0,
         })
         .then(async (beerDoc) => {
           const storageRef = fb.storage().ref(`beers/${beerDoc.id}/image`);
