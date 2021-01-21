@@ -9,16 +9,22 @@ export default {
     roomIsLoading: true,
     roomBeersLoading: false,
     myRoomsAreLoading: false,
+    participantsData: [],
   },
 
   getters: {
+    participantsData: (state) => state.participantsData,
+
     myRoomsAreLoading: (state) => state.myRoomsAreLoading,
 
     roomBeersLoading: (state) => state.roomBeersLoading,
 
     roomBeers: (state) => state.roomBeers,
 
-    room: (state) => state.room,
+    room: (state) => {
+      console.log(state.room);
+      return state.room;
+    },
 
     roomIsLoading: (state) => state.roomIsLoading,
 
@@ -26,6 +32,10 @@ export default {
   },
 
   mutations: {
+    setParticipantsData(state, participantsData) {
+      state.participantsData = participantsData;
+    },
+
     setMyRoomsAreLoading: (state, boolean) =>
       (state.myRoomsAreLoading = boolean),
 
@@ -48,6 +58,7 @@ export default {
 
   actions: {
     fetchBeersData({ commit }, beerList) {
+      console.log("fetching beers data");
       commit("setRoomBeersLoading", true);
 
       const beersRef = db.collection("beers");
@@ -59,6 +70,7 @@ export default {
           .doc(beer.beerID)
           .get()
           .then((beerDoc) => {
+            console.log("fetching beers ended");
             return {
               ...beerDoc.data(),
               id: beerDoc.id,
@@ -78,8 +90,37 @@ export default {
       });
     },
 
+    fetchParticipantsData({ commit }, participants) {
+      let promises = [];
+
+      participants.forEach((participant) => {
+        let promise = db
+          .collection("users")
+          .doc(participant.userID)
+          .get()
+          .then((userDoc) => {
+            return {
+              ...userDoc.data(),
+              id: userDoc.id,
+            };
+          });
+
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then((participants) => {
+        console.log(participants);
+
+        commit("setParticipantsData", participants);
+
+        console.log("participants ended");
+      });
+    },
+
     bindRoom: firestoreAction(
       ({ bindFirestoreRef, dispatch, commit, rootGetters }, roomID) => {
+        console.log("binasfasodfnasofnasjnflasjnflasjnflajkndflasdf");
+
         commit("roomIsLoading", true);
         commit("loading", true);
         const roomRef = db.collection("rooms").doc(roomID);
@@ -88,15 +129,33 @@ export default {
           const data = doc.data();
 
           const roomBeers = rootGetters.roomBeers;
+          const roomParticipants = rootGetters.participantsData;
 
-          const beerListChanged =
-            roomBeers.toString() !== data.beerList.toString();
+          let newReadyArray = [];
+          let oldReadyArray = [];
 
-          if (beerListChanged) {
+          data.participants.forEach((participant) => {
+            newReadyArray.push(participant.isReady);
+          });
+
+          roomParticipants.forEach((participant) => {
+            oldReadyArray.push(participant.isReady);
+          });
+
+          function arraysChanges(x, y) {
+            return x.toString() !== y.toString();
+          }
+
+          if (arraysChanges(roomBeers, data.beerList)) {
             dispatch("fetchBeersData", data.beerList);
           }
 
+          if (arraysChanges(newReadyArray, oldReadyArray)) {
+            dispatch("fetchParticipantsData", data.participants);
+          }
+
           Object.defineProperty(data, "id", { value: doc.id });
+
           return data;
         };
 

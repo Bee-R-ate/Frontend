@@ -252,7 +252,7 @@ import generateAvatar from "@/mixins/avatar";
 export default {
   data() {
     return {
-      participantsData: [],
+      // participantsData: [],
       editName: false,
       newUser: "",
       search: "",
@@ -265,24 +265,24 @@ export default {
   watch: {
     "room.participants"() {
       if (!this.room) return;
-      if (this.room.participants) this.setParticipantsData();
+      // if (this.room.participants) this.setParticipantsData();
     },
     room: {
       deep: true,
-      handler(newData) {
-        if (!newData) return;
+      handler() {
+        if (!this.room) return;
 
         if (
-          newData.participants &&
-          !newData.participants.find(
+          this.room.participants &&
+          !this.room.participants.find(
             (participant) => participant.userID === this.user.uid
           )
         ) {
           this.$store.commit("snackbar", "Zostałeś usunięty z pokoju...");
           this.$router.push("/");
         }
-        if (newData.inProgress) {
-          this.$router.push(`/rozgrywka/${newData.id}`);
+        if (this.room.inProgress) {
+          this.$router.push(`/rozgrywka/${this.room.id}`);
         }
       },
     },
@@ -296,6 +296,7 @@ export default {
       "roomBeers",
       "beersAreLoading",
       "roomBeersLoading",
+      "participantsData",
     ]),
 
     mod() {
@@ -401,38 +402,6 @@ export default {
 
       db.collection("rooms").doc(this.room.id).update({ participants });
     },
-    setParticipantsData() {
-      let promises = [];
-
-      this.room.participants.forEach((participant) => {
-        let promise = db
-          .collection("users")
-          .doc(participant.userID)
-          .get()
-          .then((userDoc) => {
-            return {
-              ...userDoc.data(),
-              id: userDoc.id,
-            };
-          });
-
-        promises.push(promise);
-      });
-
-      Promise.all(promises).then((participants) => {
-        console.log(participants);
-
-        participants.forEach((participant) => {
-          if (
-            !this.participantsData.find(
-              (userData) => userData.id === participant.id
-            )
-          ) {
-            this.participantsData.push(participant);
-          }
-        });
-      });
-    },
     editRoomName() {
       this.$store.commit("loading", true);
       db.collection("rooms")
@@ -537,11 +506,14 @@ export default {
           this.$store.commit("snackbar", "Błąd serwera, przepraszamy...");
         });
     },
-    start() {
+
+    async start() {
       this.$store.commit("loading", true);
       let participants = this.room.participants;
       participants.forEach((participant) => (participant.isReady = false));
-      db.collection("rooms")
+
+      await db
+        .collection("rooms")
         .doc(this.room.id)
         .update({ inProgress: true, participants })
         .then(() => {
