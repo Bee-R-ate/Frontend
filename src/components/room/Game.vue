@@ -149,7 +149,6 @@ export default {
     room: {
       deep: true,
       handler(newData) {
-        console.log(this.room);
         if (!this.room) return;
 
         if (newData.beerList) this.setBeersData();
@@ -161,30 +160,22 @@ export default {
       },
     },
     "room.participants"() {
-      console.log(this.room);
       if (!this.room) return;
-
-      console.log("room in progress: " + this.room.inProgress);
 
       if (this.room.inProgress && this.room.participants) {
         let status = true;
-        this.room.participants.forEach((user, index) => {
-          console.log(status);
-          console.log(index + " ---> " + user.isReady);
+        this.room.participants.forEach((user) => {
           !user.isReady && !user.isEliminated ? (status = false) : true;
         });
         if (status) {
-          console.log("status: " + status);
           if (this.room.currentBeer === this.room.beerList.length - 1) {
             this.calculateAverages();
-            console.log("calculate avg");
           } else this.nextBeer();
         }
       }
     },
     currentParticipant: {
       handler() {
-        console.log(this.room);
         if (!this.room) return;
 
         if (this.room && this.room.isEliminated) {
@@ -204,8 +195,6 @@ export default {
     ]),
 
     currentParticipant() {
-      console.log("currentParticipant");
-
       if (!this.room) return;
       return this.room.participants
         ? this.room.participants.find(
@@ -274,8 +263,6 @@ export default {
       this.resetScores();
     },
     nextBeer() {
-      console.log("nextBeer");
-
       this.$store.commit("loading", true);
       let currentBeer = this.room.currentBeer + 1;
       let participants = this.room.participants;
@@ -284,7 +271,6 @@ export default {
         .doc(this.room.id)
         .update({ currentBeer, participants })
         .then(() => {
-          console.log("next beer fin");
           this.$store.commit("snackbar", "Kolejne piwo!");
           this.$store.commit("loading", false);
           this.resetScores();
@@ -324,8 +310,6 @@ export default {
       });
 
       Promise.all(promises).then((participants) => {
-        console.log(participants);
-
         participants.forEach((participant) => {
           if (
             !this.participantsData.find(
@@ -361,7 +345,6 @@ export default {
         .doc(this.room.id)
         .update({ beerList })
         .then(() => {
-          console.log("addScores fin");
           this.$store.commit("snackbar", "Zgłosiłeś gotowość!");
           this.$store.commit("loading", false);
         })
@@ -394,7 +377,6 @@ export default {
     },
   },
   created() {
-    console.log("created");
     this.$store.dispatch("bindRoom", this.$route.params.id);
   },
 };

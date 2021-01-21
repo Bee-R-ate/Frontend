@@ -402,39 +402,6 @@ export default {
 
       db.collection("rooms").doc(this.room.id).update({ participants });
     },
-    // setParticipantsData() {
-    //   let promises = [];
-    //
-    //   this.room.participants.forEach((participant) => {
-    //     let promise = db
-    //       .collection("users")
-    //       .doc(participant.userID)
-    //       .get()
-    //       .then((userDoc) => {
-    //         return {
-    //           ...userDoc.data(),
-    //           id: userDoc.id,
-    //         };
-    //       });
-    //
-    //     promises.push(promise);
-    //   });
-    //
-    //   Promise.all(promises).then((participants) => {
-    //     console.log(participants);
-    //
-    //     participants.forEach((participant) => {
-    //       if (
-    //         !this.participantsData.find(
-    //           (userData) => userData.id === participant.id
-    //         )
-    //       ) {
-    //         this.participantsData.push(participant);
-    //       }
-    //     });
-    //     console.log("participants ended");
-    //   });
-    // },
     editRoomName() {
       this.$store.commit("loading", true);
       db.collection("rooms")
@@ -541,7 +508,6 @@ export default {
     },
 
     async start() {
-      console.log("startttttttttttttttttttttttt");
       this.$store.commit("loading", true);
       let participants = this.room.participants;
       participants.forEach((participant) => (participant.isReady = false));
@@ -551,7 +517,6 @@ export default {
         .doc(this.room.id)
         .update({ inProgress: true, participants })
         .then(() => {
-          console.log("start endddddddddddddddddddddddddddd");
           this.$store.commit("snackbar", "Niech rozpocznie się piwna debata!");
           this.$store.commit("loading", false);
         })

@@ -73,8 +73,6 @@ export default async function calculateAverages(room) {
             (avgTasteScore() + data.avgTasteScore * data.averageCount) /
             (data.averageCount + 1);
 
-          console.log(data);
-
           db.collection("beers")
             .doc(beer.beerID)
             .update({
@@ -193,14 +191,11 @@ export default async function calculateAverages(room) {
     }
   });
 
-  console.log(room.id);
-
   await db
     .collection("rooms")
     .doc(room.id)
     .update({ participants, beerList, inProgress: false, ended: true })
     .then(() => {
-      console.log("ended");
       store.commit("snackbar", "A o to wyniki!");
       store.commit("loading", false);
     })
